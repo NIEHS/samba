@@ -1,0 +1,19 @@
+Package: barbara
+Title: barbara
+Version: 1.0.0
+Authors@R: c(
+    person("Eva", "Marques", "eva.marques@nih.gov", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9817-6546")),
+    person("Kyle", "Messier", role = "ctb")
+    )
+Description: Air temperature hourly mapping at 1km across the US based on personal weather stations
+Depends: R (>= 4.1.0)
+Imports: testthat, devtools, dplyr, ggplot2, ggspatial, sf, sftime, stats, terra, tidyterra, tidyverse, lubridate, knitr, rmarkdown
+License: MIT + file LICENSE
+Encoding: UTF-8
+VignetteBuilder: knitr, rmarkdown
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Config/Needs/website: tidyverse/tidytemplate
+URL: https://github.com/NIEHS/barbara, 
+https://niehs.github.io/barbara/
