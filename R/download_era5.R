@@ -29,8 +29,8 @@ download_era5 <- function(user_id,
   mn <- months
   dy <- c(sprintf("0%d", 1:9), 10:31)
   tm <- c(paste0("0", 0:9, ":00"), paste0(10:23, ":00"))
-  for (i in 1:length(yr)) {
-    for (j in 1:length(mn)) {
+  for (i in seq_along(yr)) {
+    for (j in seq_along(mn)) {
       request <- list(
         "dataset_short_name" = "reanalysis-era5-land",
         "product_type" = "reanalysis",
@@ -43,7 +43,7 @@ download_era5 <- function(user_id,
         "format" = "netcdf",
         "target" = paste0("era5_", yr[i], "_", mn[j], ".nc")
       )
-      file <- wf_request(
+      wf_request(
         user     = user_id,
         request  = request,
         transfer = TRUE,
