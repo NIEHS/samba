@@ -7,7 +7,8 @@ Authors@R: c(
   )
 Description: Air temperature hourly mapping at 1km across the US based on personal weather stations
 Depends: R (>= 4.1.0)
-Imports: testthat, devtools, dplyr, ggplot2, ggspatial, sf, sftime, stats, terra, tidyterra, tidyverse, lubridate, knitr, rmarkdown
+Imports: testthat, devtools, pak, dplyr, ggplot2, ggspatial, sf, sftime, stats, terra, tidyterra, tidyverse, lubridate, INLA, ecmwfr, exactextractr, stars
+Remotes: NIEHS/amadeus 
 License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr, rmarkdown
