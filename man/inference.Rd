@@ -18,9 +18,14 @@ Coordinates are in EPSG:4326.}
 \item{ts}{model start time}
 
 \item{te}{model end time}
+
+\item{verbose}{logical, print INLA output}
+}
+\value{
+a list with the prediction and the model object
 }
 \description{
-Perform inference on a spatiotemporal model using INLA.
+Perform inference of a spatiotemporal model using INLA.
 }
 \author{
 Eva Marques

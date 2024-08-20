@@ -22,10 +22,6 @@ Convert an \code{sftime} object to a \code{SpatRaster} object. Returns a
 Running \code{sftime_as_spatraster} can take a long time if \code{x} is not
 spatially structured.
 }
-\seealso{
-\link[terra:rast]{terra::rast}
-}
 \author{
 Eva Marques
 }
-\keyword{spacetime}

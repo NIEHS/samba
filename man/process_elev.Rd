@@ -7,14 +7,14 @@
 process_elev(elev, polygon)
 }
 \arguments{
-\item{polygon}{SpatVector polygon to crop raster}
+\item{elev}{RasterLayer: elevation raster}
 
-\item{imp}{RasterLayer: elevation raster}
+\item{polygon}{SpatVector polygon to crop raster}
 }
 \value{
 RasterLayer: processed elevation raster
 }
 \description{
-Process elevation raster: select extent,
-and set NA values
+Process elevation raster: select extent, set NA values and
+calculate slope, aspect, flow direction
 }

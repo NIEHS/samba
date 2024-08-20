@@ -12,7 +12,7 @@ extract_local_climate_zone(pts, lcz, buf_radius = 500)
 
 \item{lcz}{a SpatRaster with local climate zone data.}
 
-\item{fsave}{a character with the file path to save the extracted data.}
+\item{buf_radius}{a numeric with the radius of the buffer around each point.}
 }
 \description{
 Extracts local climate zone at spatial points

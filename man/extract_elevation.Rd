@@ -12,7 +12,7 @@ extract_elevation(pts, elev, buf_radius = 500)
 
 \item{elev}{a SpatRaster with elevation data.}
 
-\item{fsave}{a character with the file path to save the extracted data.}
+\item{buf_radius}{a numeric with the radius of the buffer around each point.}
 }
 \description{
 Extracts elevation at spatial points

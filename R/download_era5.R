@@ -10,7 +10,7 @@
 #' @param lonn minimum longitude
 #' @param lonx maximum longitude
 #' @param storage_dir: directory to save the downloaded files
-#' @import ecmwfr
+#' @importFrom ecmwfr wf_set_key wf_request
 #' @importFrom lubridate year
 #' @importFrom sf st_bbox
 download_era5 <- function(user_id,
@@ -22,7 +22,7 @@ download_era5 <- function(user_id,
                           lonx,
                           storage_dir) {
   # input your login info with an interactive request
-  wf_set_key(service = "cds")
+  ecmwfr::wf_set_key(service = "cds")
   ph <- storage_dir
   vr <- c("2m_temperature")
   yr <- years
@@ -43,7 +43,7 @@ download_era5 <- function(user_id,
         "format" = "netcdf",
         "target" = paste0("era5_", yr[i], "_", mn[j], ".nc")
       )
-      wf_request(
+      ecmwfr::wf_request(
         user     = user_id,
         request  = request,
         transfer = TRUE,

@@ -12,7 +12,7 @@ extract_building_footprint(pts, bf, buf_radius = 500)
 
 \item{bf}{a SpatRaster with building footprint data.}
 
-\item{fsave}{a character with the file path to save the extracted data.}
+\item{buf_radius}{a numeric with the radius of the buffer around each point.}
 }
 \description{
 Extracts building footprint at spatial points

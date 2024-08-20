@@ -12,8 +12,6 @@ Should be a 100km*100km hourly grid with 1km resolution (created using
 \code{\link[=create_grids_from_cells]{create_grids_from_cells()}}).}
 
 \item{era5}{a SpatRaster with era5 data. Layers correspond to time (hours).}
-
-\item{fsave}{a character with the file path to save the extracted data.}
 }
 \description{
 Extracts era5 at spatiotemporal points

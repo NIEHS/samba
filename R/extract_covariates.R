@@ -4,7 +4,6 @@
 #' Should be a 100km*100km hourly grid with 1km resolution (created using
 #' [`create_grids_from_cells()`]).
 #' @param era5 a SpatRaster with era5 data. Layers correspond to time (hours).
-#' @param fsave a character with the file path to save the extracted data.
 extract_era5 <- function(pts, era5) {
   # check inputs
   if (!(methods::is(pts, "SpatVector") || methods::is(pts, "sf"))) {
@@ -46,7 +45,7 @@ extract_era5 <- function(pts, era5) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param elev a SpatRaster with elevation data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_elevation <- function(pts, elev, buf_radius = 500) {
   # check inputs
@@ -69,9 +68,9 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   all_cov <- exactextractr::exact_extract(elev,
-                                           sf::st_geometry(bufs_pol),
-                                           fun = "mean",
-                                           progress = FALSE)
+                                          sf::st_geometry(bufs_pol),
+                                          fun = "mean",
+                                          progress = FALSE)
   pts$elev <- all_cov[, 1]
   pts$slope <- all_cov[, 2]
   pts$aspect <- all_cov[, 3]
@@ -89,7 +88,7 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param imp a SpatRaster with imperviousness data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_imperviousness <- function(pts, imp, buf_radius = 500) {
   # check inputs
@@ -127,7 +126,7 @@ extract_imperviousness <- function(pts, imp, buf_radius = 500) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param tcc a SpatRaster with tree canopy cover data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
   # check inputs
@@ -164,7 +163,7 @@ extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param fch a SpatRaster with forest canopy height data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
   # check inputs
@@ -202,7 +201,7 @@ extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param bf a SpatRaster with building footprint data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_building_footprint <- function(pts, bf, buf_radius = 500) {
   # check inputs
@@ -240,7 +239,7 @@ extract_building_footprint <- function(pts, bf, buf_radius = 500) {
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
 #' [`create_grids_from_cells()`]).
 #' @param lcz a SpatRaster with local climate zone data.
-#' @param fsave a character with the file path to save the extracted data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
 extract_local_climate_zone <- function(pts, lcz, buf_radius = 500) {
   # check inputs

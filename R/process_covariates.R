@@ -1,10 +1,10 @@
-#' Process elevation raster
-#' @description Process elevation raster: select extent,
-#' and set NA values
-#' @param imp RasterLayer: elevation raster
+ #' Process elevation raster
+#' @description Process elevation raster: select extent, set NA values and
+#' calculate slope, aspect, flow direction
+#' @param elev RasterLayer: elevation raster
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed elevation raster
-#' @importFrom terra crop
+#' @importFrom terra crop terrain
 process_elev <- function(elev, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(elev, polygon)) {
@@ -18,7 +18,7 @@ process_elev <- function(elev, polygon) {
   elev$aspect <- terra::terrain(elev$dem, "aspect")
   # Roughness is the difference between the maximum and the
   # minimum value of a cell and its 8 surrounding cells. It is a discrete value
-  # so it is not added here. 
+  # so it is not added here.
   elev$flowdir <- terra::terrain(elev$dem, "flowdir")
   return(elev)
 }

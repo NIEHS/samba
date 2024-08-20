@@ -12,7 +12,7 @@ extract_tree_canopy_cover(pts, tcc, buf_radius = 500)
 
 \item{tcc}{a SpatRaster with tree canopy cover data.}
 
-\item{fsave}{a character with the file path to save the extracted data.}
+\item{buf_radius}{a numeric with the radius of the buffer around each point.}
 }
 \description{
 Extracts tree canopy cover at spatial points

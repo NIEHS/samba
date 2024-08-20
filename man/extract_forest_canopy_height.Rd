@@ -12,7 +12,7 @@ extract_forest_canopy_height(pts, fch, buf_radius = 500)
 
 \item{fch}{a SpatRaster with forest canopy height data.}
 
-\item{fsave}{a character with the file path to save the extracted data.}
+\item{buf_radius}{a numeric with the radius of the buffer around each point.}
 }
 \description{
 Extracts forest canopy height at spatial points

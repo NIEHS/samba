@@ -7,25 +7,21 @@
 sf_as_spatraster(x, varname, nx, ny)
 }
 \arguments{
-\item{x}{an \code{sftime} object}
+\item{x}{an \code{sf} object}
 
 \item{varname}{variable to rasterize}
+
+\item{nx}{number of cells in the x direction}
+
+\item{ny}{number of cells in the y direction}
 }
 \value{
 a \code{SpatRaster} object
 }
 \description{
-Convert an \code{sftime} object to a \code{SpatRaster} object. Returns a
+Convert an \code{sf} object to a \code{SpatRaster} object. Returns a
 \code{SpatRatser} with one layer for each time step in \code{x}.
-}
-\note{
-Running \code{sftime_as_spatraster} can take a long time if \code{x} is not
-spatially structured.
-}
-\seealso{
-\link[terra:rast]{terra::rast}
 }
 \author{
 Eva Marques
 }
-\keyword{spacetime}

@@ -10,6 +10,11 @@ map_pred_mean(pred, borders, tz = "America/New_York")
 \item{pred}{a data.frame with prediction mean, lat, lon, time}
 
 \item{borders}{a terra::SpatVector with territory borders}
+
+\item{tz}{timezone character}
+}
+\value{
+a list of ggplot2 objects
 }
 \description{
 Plot model prediction mean
