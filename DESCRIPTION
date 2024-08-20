@@ -11,25 +11,25 @@ License: MIT + file LICENSE
 URL: https://github.com/NIEHS/barbara,
 Depends: 
     R (>= 4.1.0)
-Imports: 
-    devtools,
+Imports:
     dplyr,
     ecmwfr,
     exactextractr,
     ggplot2,
     ggspatial,
     INLA,
-    knitr,
     lubridate,
-    rmarkdown,
     sf,
     sftime,
     stars,
-    stats,
     terra,
-    testthat,
     tidyterra,
     tidyverse
+Suggests: 
+    covr,
+    knitr,
+    rmarkdown,
+    testthat
 VignetteBuilder: 
     knitr,
     rmarkdown
