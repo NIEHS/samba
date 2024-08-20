@@ -2,19 +2,40 @@ Package: barbara
 Title: barbara
 Version: 1.0.0
 Authors@R: c(
-  person("Eva", "Marques", role = c("aut", "cre"), email = "eva.marques@nih.gov"),
-  person("Kyle", "Messier", role = "ctb")
+    person("Eva", "Marques", , "eva.marques@nih.gov", role = c("aut", "cre")),
+    person("Kyle", "Messier", role = "ctb")
   )
-Description: Air temperature hourly mapping at 1km across the US based on personal weather stations
-Depends: R (>= 4.1.0)
-Imports: testthat, devtools, pak, dplyr, ggplot2, ggspatial, sf, sftime, stats, terra, tidyterra, tidyverse, lubridate, INLA, ecmwfr, exactextractr, stars
-Remotes: NIEHS/amadeus 
+Description: Air temperature hourly mapping at 1km across the US based on
+    personal weather stations
 License: MIT + file LICENSE
+URL: https://github.com/NIEHS/barbara,
+Depends: 
+    R (>= 4.1.0)
+Imports: 
+    devtools,
+    dplyr,
+    ecmwfr,
+    exactextractr,
+    ggplot2,
+    ggspatial,
+    INLA,
+    lubridate,
+    sf,
+    sftime,
+    stars,
+    stats,
+    terra,
+    testthat,
+    tidyterra,
+    tidyverse
+VignetteBuilder: 
+    knitr,
+    rmarkdown
+Remotes: 
+    NIEHS/amadeus
+Config/Needs/website: tidyverse/tidytemplate
+Config/testthat/edition: 3
 Encoding: UTF-8
-VignetteBuilder: knitr, rmarkdown
+https: //niehs.github.io/barbara/
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-Config/Needs/website: tidyverse/tidytemplate
-URL: https://github.com/NIEHS/barbara, 
-https: //niehs.github.io/barbara/
-Config/testthat/edition: 3
