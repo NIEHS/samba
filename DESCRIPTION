@@ -30,12 +30,13 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+Remotes:
+    hrue/r-inla
 VignetteBuilder: 
     knitr,
     rmarkdown
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
-https: //niehs.github.io/barbara/
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
