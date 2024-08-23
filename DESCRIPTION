@@ -12,11 +12,13 @@ URL: https://github.com/NIEHS/barbara,
 Depends: 
     R (>= 4.1.0)
 Imports:
+    amadeus,
     dplyr,
     ecmwfr,
     exactextractr,
     ggplot2,
     ggspatial,
+    INLA,
     lubridate,
     sf,
     sftime,
@@ -27,15 +29,14 @@ Imports:
 Suggests: 
     covr,
     knitr,
-    INLA,
     rmarkdown,
     testthat
 VignetteBuilder: 
     knitr,
     rmarkdown
 Remotes: 
-    NIEHS/amadeus
-    hrue/r-inla/rinla@stable
+    amadeus=NIEHS/amadeus
+    INLA=url::https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
