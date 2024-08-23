@@ -31,7 +31,7 @@ Suggests:
     rmarkdown,
     testthat
 Remotes:
-    hrue/r-inla
+    github::hrue/r-inla
 VignetteBuilder: 
     knitr,
     rmarkdown
