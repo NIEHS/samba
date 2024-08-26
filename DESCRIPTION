@@ -17,7 +17,7 @@ Imports:
     exactextractr,
     ggplot2,
     ggspatial,
-    INLA (>= 24.6.27),
+    INLA,
     lubridate,
     methods,
     sf,
@@ -33,4 +33,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Remotes:  
-    github::hrue/r-inla
+    url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_24.06.27.tar.gz
