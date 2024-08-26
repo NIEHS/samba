@@ -8,26 +8,15 @@ Authors@R: c(
 Description: Air temperature hourly mapping at 1km across the US based on
     personal weather stations
 License: MIT + file LICENSE
-URL: https://github.com/NIEHS/barbara,
+URL: https://github.com/NIEHS/barbara
 Depends: 
     R (>= 4.1.0)
 Imports:
-    dplyr,
-    ecmwfr,
-    exactextractr,
-    ggplot2,
-    ggspatial,
     lubridate,
     sf,
-    sftime,
-    stars,
-    terra,
-    tidyterra,
-    tidyverse
+    terra
 Suggests: 
     covr,
-    knitr,
-    rmarkdown,
     testthat
 VignetteBuilder: 
     knitr,
