@@ -9,6 +9,8 @@ data is stored per month in a netcdf file
 download_era5(user_id, years, months, latn, latx, lonn, lonx, storage_dir)
 }
 \arguments{
+\item{user_id}{character with user Copernicus UID}
+
 \item{years}{vector of years to download}
 
 \item{months}{vector of characters for months to download
@@ -21,8 +23,6 @@ download_era5(user_id, years, months, latn, latx, lonn, lonx, storage_dir)
 \item{lonn}{minimum longitude}
 
 \item{lonx}{maximum longitude}
-
-\item{user_od}{character with user Copernicus UID}
 
 \item{storage_dir:}{directory to save the downloaded files}
 }

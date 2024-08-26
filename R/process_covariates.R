@@ -1,4 +1,4 @@
- #' Process elevation raster
+#' Process elevation raster
 #' @description Process elevation raster: select extent, set NA values and
 #' calculate slope, aspect, flow direction
 #' @param elev RasterLayer: elevation raster

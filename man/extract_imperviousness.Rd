@@ -7,8 +7,7 @@
 extract_imperviousness(pts, imp, buf_radius = 500)
 }
 \arguments{
-\item{pts}{a SpatVector or sf (should not be spatiotemporal)
-\code{\link[=create_grids_from_cells]{create_grids_from_cells()}}).}
+\item{pts}{a SpatVector or sf (should not be spatiotemporal)}
 
 \item{imp}{a SpatRaster with imperviousness data.}
 

@@ -1,8 +1,7 @@
 #' Extracts era5 at spatiotemporal points
 #' @description Extracts era5 at spatiotemporal points
 #' @param pts a SpatVector with "time" column (spatiotemporal points).
-#' Should be a 100km*100km hourly grid with 1km resolution (created using
-#' [`create_grids_from_cells()`]).
+#' Should be a 100km*100km hourly grid with 1km resolution
 #' @param era5 a SpatRaster with era5 data. Layers correspond to time (hours).
 #' @importFrom terra extract match unique
 #' @importFrom methods is
@@ -45,7 +44,6 @@ extract_era5 <- function(pts, era5) {
 #' Extracts elevation at spatial points
 #' @description Extracts elevation at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param elev a SpatRaster with elevation data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
@@ -91,7 +89,6 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
 #' Extracts imperviousness at spatial points
 #' @description Extracts imperviousness at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param imp a SpatRaster with imperviousness data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom methods is
@@ -132,7 +129,6 @@ extract_imperviousness <- function(pts, imp, buf_radius = 500) {
 #' Extracts tree canopy cover at spatial points
 #' @description Extracts tree canopy cover at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param tcc a SpatRaster with tree canopy cover data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom methods is
@@ -172,7 +168,6 @@ extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
 #' Extracts forest canopy height at spatial points
 #' @description Extracts forest canopy height at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param fch a SpatRaster with forest canopy height data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
@@ -213,7 +208,6 @@ extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
 #' Extracts building footprint at spatial points
 #' @description Extracts building footprint at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param bf a SpatRaster with building footprint data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract
@@ -254,7 +248,6 @@ extract_building_footprint <- function(pts, bf, buf_radius = 500) {
 #' Extracts local climate zone at spatial points
 #' @description Extracts local climate zone at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
-#' [`create_grids_from_cells()`]).
 #' @param lcz a SpatRaster with local climate zone data.
 #' @param buf_radius a numeric with the radius of the buffer around each point.
 #' @importFrom exactextractr exact_extract

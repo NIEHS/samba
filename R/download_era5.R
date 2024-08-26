@@ -1,7 +1,7 @@
 #' Download ERA5 reanalysis of temperature for a given period and area
 #' data is stored per month in a netcdf file
 #' /!\ download quite long...
-#' @param user_od character with user Copernicus UID
+#' @param user_id character with user Copernicus UID
 #' @param years vector of years to download
 #' @param months vector of characters for months to download
 #' (e.g. c("01", "02", "03")).

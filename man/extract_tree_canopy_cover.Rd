@@ -7,8 +7,7 @@
 extract_tree_canopy_cover(pts, tcc, buf_radius = 500)
 }
 \arguments{
-\item{pts}{a SpatVector or sf (should not be spatiotemporal)
-\code{\link[=create_grids_from_cells]{create_grids_from_cells()}}).}
+\item{pts}{a SpatVector or sf (should not be spatiotemporal)}
 
 \item{tcc}{a SpatRaster with tree canopy cover data.}
 

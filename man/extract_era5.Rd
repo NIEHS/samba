@@ -8,8 +8,7 @@ extract_era5(pts, era5)
 }
 \arguments{
 \item{pts}{a SpatVector with "time" column (spatiotemporal points).
-Should be a 100km*100km hourly grid with 1km resolution (created using
-\code{\link[=create_grids_from_cells]{create_grids_from_cells()}}).}
+Should be a 100km*100km hourly grid with 1km resolution}
 
 \item{era5}{a SpatRaster with era5 data. Layers correspond to time (hours).}
 }
