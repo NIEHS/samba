@@ -27,11 +27,8 @@ Imports:
 Suggests: 
     covr,
     knitr,
-    INLA,
     rmarkdown,
     testthat
-Remotes:
-    INLA=github::hrue/r-inla
 VignetteBuilder: 
     knitr,
     rmarkdown
