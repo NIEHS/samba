@@ -12,10 +12,16 @@ URL: https://github.com/NIEHS/barbara
 Depends: 
     R (>= 4.1.0)
 Imports:
+    ecmwfr,
+    exactextractr,
+    ggplot2,
+    ggspatial,
     lubridate,
+    methods,
     sf,
     stars,
-    terra
+    terra,
+    tidyterra
 Suggests: 
     covr,
     testthat (>= 3.0.0)
