@@ -14,6 +14,7 @@ Depends:
 Imports:
     lubridate,
     sf,
+    stars,
     terra
 Suggests: 
     covr,
