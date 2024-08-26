@@ -9,7 +9,7 @@
 #' @param latx maximum latitude
 #' @param lonn minimum longitude
 #' @param lonx maximum longitude
-#' @param storage_dir: directory to save the downloaded files
+#' @param storage_dir directory to save the downloaded files
 #' @importFrom ecmwfr wf_set_key wf_request
 #' @importFrom lubridate year
 #' @importFrom sf st_bbox

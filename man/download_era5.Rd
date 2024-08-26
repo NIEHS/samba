@@ -24,7 +24,7 @@ download_era5(user_id, years, months, latn, latx, lonn, lonx, storage_dir)
 
 \item{lonx}{maximum longitude}
 
-\item{storage_dir:}{directory to save the downloaded files}
+\item{storage_dir}{directory to save the downloaded files}
 }
 \description{
 Download ERA5 reanalysis of temperature for a given period and area
