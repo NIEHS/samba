@@ -12,10 +12,12 @@ URL: https://github.com/NIEHS/barbara
 Depends: 
     R (>= 4.1.0)
 Imports:
+    dplyr,
     ecmwfr,
     exactextractr,
     ggplot2,
     ggspatial,
+    INLA (>= 24.6.27),
     lubridate,
     methods,
     sf,
@@ -30,3 +32,5 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
+Remotes:  
+    github::hrue/r-inla
