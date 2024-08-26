@@ -9,4 +9,4 @@
 library(testthat)
 library(barbara)
 
-test_check("barbara", path = "tests/testthat/")
+test_check("barbara")
