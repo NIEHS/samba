@@ -27,6 +27,8 @@ Imports:
 Suggests: 
     covr,
     testthat (>= 3.0.0)
+Remotes:
+    INLA=url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_24.06.27.tar.gz
 Additional_repositories: https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
