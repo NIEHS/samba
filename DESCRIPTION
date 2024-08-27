@@ -29,7 +29,7 @@ Suggests:
     testthat (>= 3.0.0)
 Additional_repositories: https://inla.r-inla-download.org/R/stable
 Remotes:
-    INLA=url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_24.06.27.tar.gz
+    INLA=url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_24.05.10.tar.gz
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
