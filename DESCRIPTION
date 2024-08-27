@@ -27,11 +27,9 @@ Suggests:
     covr,
     INLA,
     testthat (>= 3.0.0)
-Additional_repositories: https://inla.r-inla-download.org/R/testing
+Additional_repositories: https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-Remotes:  
-    INLA=hrue/r-inla
