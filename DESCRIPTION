@@ -17,7 +17,6 @@ Imports:
     exactextractr,
     ggplot2,
     ggspatial,
-    INLA,
     lubridate,
     methods,
     sf,
@@ -26,6 +25,7 @@ Imports:
     tidyterra
 Suggests:
     covr,
+    INLA,
     testthat (>= 3.0.0)
 Additional_repositories: https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
