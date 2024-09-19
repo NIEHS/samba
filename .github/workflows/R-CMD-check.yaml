@@ -56,6 +56,7 @@ jobs:
         with:
           dependencies: '"all"'
           extra-packages: any::rcmdcheck
+          extra-packages: any::INLA
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
