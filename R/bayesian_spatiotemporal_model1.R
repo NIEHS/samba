@@ -15,7 +15,7 @@
 #' @importFrom terra as.points as.polygons buffer crs ext intersect project
 #' @author Eva Marques
 #' @export
-inference <- function(data, pred, polygon, ts, te, verbose = FALSE) {
+inference_mod1 <- function(data, pred, polygon, ts, te, verbose = FALSE) {
   stopifnot(
     "lon missing" = "lon" %in% colnames(data),
     "lat missing" = "lat" %in% colnames(data),
@@ -143,7 +143,7 @@ inference <- function(data, pred, polygon, ts, te, verbose = FALSE) {
   )
   stk_full <- INLA::inla.stack(stk_data, stk_pred)
   # model inference, rho = correlation with p(rho>0.5)=0.7 (prior for ar1)
-  formula <- y ~ -1 + int + era5 + elev + imp + f(s,
+  formula <- y ~ -1 + int + era5 + elev + imp + tcc + fch + bf + f(s,
     model = spde,
     group = s.group,
     control.group = list(
