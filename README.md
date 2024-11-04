@@ -2,7 +2,8 @@
 
 The development of this library is in progress.
 
-## Spatiotemporal Bayesian model for the creation of an hourly gridded product of air temperature across the US
+## Spatiotemporal Air-temperature Model with Bayesian Approach 
+#### Creation of an hourly gridded product of air temperature across the US
 
 Key points:
 
