@@ -1,4 +1,4 @@
-# barbara
+# samba
 
 The development of this library is in progress.
 
