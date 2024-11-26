@@ -10,6 +10,12 @@ find_cells <- function(polygon) {
     terra::rast(res = 1)
   terra::values(contig_us_grid) <- 1:terra::ncell(contig_us_grid)
   names(contig_us_grid) <- "id"
+  us_states <- tigris::states()
+  no_contig <- c("VI", "MP", "AK", "PR", "AS", "GU", "HI")
+  us_contig <- us_states[which(!(us_states$STUSPS %in% no_contig)), "NAME"] |>
+    terra::vect() |>
+    terra::project("epsg:4326")
+  contig_us_grid <- terra::crop(contig_us_grid, us_contig, snap = "in", mask = TRUE)
   # polygon projection
   poly <- terra::project(polygon, "epsg:4326")
   # select cells that intersect with the polygon

@@ -7,8 +7,8 @@
 #' @importFrom methods is
 extract_era5 <- function(pts, era5) {
   # check inputs
-  if (!(methods::is(pts, "SpatVector") || methods::is(pts, "sf"))) {
-    stop("pts is not a SpatVector or sf.")
+  if (!(methods::is(pts, "sf"))) {
+    stop("pts is not a sf.")
   }
   if (!methods::is(era5, "SpatRaster")) {
     stop("era5 is not a SpatRaster.")
@@ -23,6 +23,10 @@ extract_era5 <- function(pts, era5) {
   }
   # extract era5 data
   start_time <- Sys.time()
+  # check crs
+  if (!terra::same.crs(pts, era5)) {
+    pts <- sf::st_transform(pts, sf::st_crs(era5))
+  }
   n_hours <- 24
   n_loc <- length(terra::unique(pts$geometry))
   batches <- 1:(nrow(pts) / (n_hours * n_loc))
@@ -30,10 +34,11 @@ extract_era5 <- function(pts, era5) {
   m <- terra::match(pts$time, terra::time(era5))
   for (i in batches) {
     indexes <- ((i - 1) * (n_hours * n_loc)) + 1:(n_hours * n_loc)
+    i_layers <- paste0("t2m_", m[indexes])
     # era5 t2m is in Kelvin
     pts[indexes, ]$era5 <- terra::extract(era5,
                                           pts[indexes, ],
-                                          layer = m[indexes])[, 3] - 273.15
+                                          layer = i_layers)[, 3] - 273.15
   }
   end_time <- Sys.time()
   end_time - start_time
@@ -245,6 +250,45 @@ extract_building_footprint <- function(pts, bf, buf_radius = 500) {
 }
 
 
+#' Extracts evapotranspiration at spatial points
+#' @description Extracts evapotranspiration at spatial points
+#' @param pts a SpatVector or sf (should not be spatiotemporal)
+#' @param et a SpatRaster with building footprint data.
+#' @param buf_radius a numeric with the radius of the buffer around each point.
+#' @importFrom exactextractr exact_extract
+#' @importFrom methods is
+#' @importFrom terra same.crs project buffer
+#' @importFrom sf st_as_sf
+extract_evapotranspiration <- function(pts, et, buf_radius = 500) {
+  # check inputs
+  if (!(methods::is(pts, "SpatVector"))) {
+    stop("pts is not a SpatVector.")
+  }
+  if (!methods::is(et, "SpatRaster")) {
+    stop("et is not a SpatRaster.")
+  }
+  # check that time is included in SpatVector columns
+  if ("time" %in% names(pts)) {
+    stop("pts is probably a spatiotemporal sample.")
+  }
+  start_time <- Sys.time()
+  # check crs
+  if (!terra::same.crs(pts, et)) {
+    pts <- terra::project(pts, terra::crs(et))
+  }
+  # create polygons with radius arouns each pts
+  bufs_pol <- terra::buffer(pts, width = buf_radius) |>
+    sf::st_as_sf()
+  pts$et <- exactextractr::exact_extract(et,
+                                         sf::st_geometry(bufs_pol),
+                                         fun = "mean",
+                                         progress = FALSE)
+  end_time <- Sys.time()
+  end_time - start_time
+  # return data
+  return(pts)
+}
+
 #' Extracts local climate zone at spatial points
 #' @description Extracts local climate zone at spatial points
 #' @param pts a SpatVector or sf (should not be spatiotemporal)
@@ -335,6 +379,15 @@ extract_local_climate_zone <- function(pts, lcz, buf_radius = 500) {
     }
   )
   names(at_bufs) <- new_names
+  # add classes that are not present with 0 ratio
+  expected_cols <- sapply(
+    lcz_classes$class,
+    function(x) {
+      paste0("frac_", x, "_", buf_radius, "m")
+    }
+  )
+  missing_cols <- expected_cols[which(!(expected_cols %in% colnames(at_bufs)))]
+  at_bufs[, missing_cols] <- 0
   # merge data_vect with nlcd class fractions (and reproject)
   new_pts <- cbind(pts, at_bufs)
   end_time <- Sys.time()
