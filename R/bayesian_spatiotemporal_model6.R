@@ -153,8 +153,10 @@ inference_mod6 <- function(data,
   # data wrapper
   stk_data <- INLA::inla.stack(
     tag = "data",
-    data = list(#y = data$temp_cal),
-      y = "temp"),
+    data = list(
+      #y = data$temp_cal
+      y = data$temp
+    ),
     A = list(1, a_st),
     effects = list(
       data.frame(
