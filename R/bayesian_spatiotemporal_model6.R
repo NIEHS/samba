@@ -28,8 +28,8 @@ inference_mod6 <- function(data,
     "lon missing" = "lon" %in% colnames(data),
     "lat missing" = "lat" %in% colnames(data),
     "time missing" = "time" %in% colnames(data),
-    "temp missing" = "temp" %in% colnames(data),
-    "temp_cal missing" = "temp_cal" %in% colnames(data)
+    "temp missing" = "temp" %in% colnames(data)#,
+    #"temp_cal missing" = "temp_cal" %in% colnames(data)
   )
   # check that polygon is a SpatVector
   stopifnot(
@@ -70,7 +70,6 @@ inference_mod6 <- function(data,
 
   # scale covariates
   covar <- c(
-    "era5",
     "elev",
     "tcc",
     "imp",
@@ -154,12 +153,12 @@ inference_mod6 <- function(data,
   # data wrapper
   stk_data <- INLA::inla.stack(
     tag = "data",
-    data = list(y = data$temp_cal),
+    data = list(#y = data$temp_cal),
+      y = "temp"),
     A = list(1, a_st),
     effects = list(
       data.frame(
         int = rep(1, nrow(data)),
-        era5 = data$era5,
         elev = data$elev,
         tcc = data$tcc,
         imp = data$imp,
@@ -179,7 +178,6 @@ inference_mod6 <- function(data,
     effects = list(
       data.frame(
         int = rep(1, nrow(pred)),
-        era5 = pred$era5,
         elev = pred$elev,
         tcc = pred$tcc,
         imp = pred$imp,

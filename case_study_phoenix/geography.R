@@ -1,8 +1,5 @@
 # Triangle area: geographical context and meteorological conditions
-stopifnot(
-    "current dir is not in case_study_triangle" =
-      basename(getwd()) == "case_study_phoenix"
-  )
+
 devtools::load_all()
 
 # create storage folder if they do not exist
@@ -13,8 +10,8 @@ if (!dir.exists("./graphs/geography")) {
   dir.create("./graphs/geography")
 }
 ## Open area shapefiles
-source("open_phoenix.R")
-data <- open_phoenix(cws = TRUE, covariates = TRUE, ref_network = TRUE)
+source("open_triangle.R")
+data <- open_triangle(cws = TRUE, covariates = TRUE, ref_network = TRUE)
 
 # merge ref and cws network for plotting
 cws_locs <- data$cws[, c("site_id", "lat", "lon")] |>
@@ -314,7 +311,7 @@ p_et <- ggplot() +
     height = ggplot2::unit(0.30, "cm"),
     text_cex = 1
   ) +
-  xlim(c(min(data$cws$lon) - 0.01, max(data$cws$lon) + 0.01)) +
+  xlim(c(-79.21, -78.3)) +
   ggspatial::annotation_north_arrow(
     location = "br",
     which_north = "true",
