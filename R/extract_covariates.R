@@ -1,49 +1,140 @@
-#' Extracts era5 at spatiotemporal points
-#' @description Extracts era5 at spatiotemporal points
-#' @param pts a SpatVector with "time" column (spatiotemporal points).
-#' Should be a 100km*100km hourly grid with 1km resolution
-#' @param era5 a SpatRaster with era5 data. Layers correspond to time (hours).
-#' @importFrom terra extract match unique
-#' @importFrom methods is
-extract_era5 <- function(pts, era5) {
-  # check inputs
-  if (!(methods::is(pts, "sf"))) {
-    stop("pts is not a sf.")
+extract_era5 <- function(
+  pts_st,
+  era5_accum,
+  era5_instant,
+  path_accum,
+  path_instant,
+  ts,
+  te
+  ) {
+  varnames_i <- terra::varnames(era5_instant)
+  varnames_a <- terra::varnames(era5_accum)
+  all_var <- c(
+    "u10",
+    "v10",
+    "d2m",
+    "t2m",
+    "stl1",
+    "lai_hv",
+    "lai_lv",
+    "tcc",
+    "tp",
+    "slhf",
+    "ssr",
+    "sshf",
+    "ssrd",
+    "e",
+    "tp",
+    "slhf"
+  )
+  stopifnot(
+    "era5 variables missing" =
+      all_var %in% cbind(varnames_i, varnames_a)
+  )
+  # get ncdf time
+  nc <- ncdf4::nc_open(path_accum)
+  times_accum <- ncdf4::ncvar_get(nc, "valid_time")
+  ncdf4::nc_close(nc)
+
+  nc <- ncdf4::nc_open(path_instant)
+  times_instant <- ncdf4::ncvar_get(nc, "valid_time")
+  ncdf4::nc_close(nc)
+  # select only points
+  pts <- terra::geom(pts_st, wkt = TRUE) |>
+    unique() |>
+    terra::vect(crs = terra::crs(pts_st))
+  # Create a 30,000-meter buffer around points
+  # and faster incoming computations
+  buf_area_rect <- terra::ext(pts) |>
+    terra::as.polygons(crs = terra::crs(pts)) |>
+    terra::buffer(30000, joinstyle = "mitre")
+  buf_area_rect <- terra::project(buf_area_rect, y = era5_instant)
+  era5_instant <- terra::crop(era5_instant, buf_area_rect, snap = "out")
+  era5_accum <- terra::crop(era5_accum, buf_area_rect, snap = "out")
+
+  for (i in varnames_i) {
+    r <- era5_instant[i]
+    terra::time(r) <- as.POSIXct(
+      times_instant,
+      origin = "1970-01-01 00:00:00",
+      format = "%Y-%m-%d %H:%M:%S",
+      tz = "UTC"
+    )
+    # Find the indices of the layers within the specified time range
+    time_idx <- which(terra::time(r) >= ts & terra::time(r) <= te)
+    r <- r[[time_idx]]
+    names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
+    assign(paste0("era5_", i), r)
   }
-  if (!methods::is(era5, "SpatRaster")) {
-    stop("era5 is not a SpatRaster.")
+  era5_t2m <- era5_t2m - 273.15
+  era5_d2m <- era5_d2m - 273.15
+  # calculation of rh from t2m and d2m
+  e_t2m <- 6.1078 * exp((17.1 * era5_t2m) / (235 + era5_t2m))
+  e_d2m <- 6.1078 * exp((17.1 * era5_d2m) / (235 + era5_d2m))
+  era5_rh <- e_d2m / e_t2m
+  for (i in varnames_a) {
+    r <- era5_accum[[grep(
+      paste0("^", i, "_"),
+      terra::names(era5_accum)
+    )]]
+    terra::time(r) <- as.POSIXct(
+      times_accum,
+      origin = "1970-01-01 00:00:00",
+      format = "%Y-%m-%d %H:%M:%S",
+      tz = "UTC"
+    )
+    # Find the indices of the layers within the specified time range
+    time_idx <- which(terra::time(r) >= ts & terra::time(r) <= te)
+    r <- r[[time_idx]]
+    names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
+    assign(paste0("era5_", i), r)
   }
-  # check that time is included in SpatVector columns
-  if (!"time" %in% names(pts)) {
-    stop("time is not included in pts columns.")
+  bufs_pol <- terra::buffer(pts, width = 15000) |>
+    sf::st_as_sf()
+  era5_var <- c(
+    "era5_t2m",
+    "era5_d2m",
+    "era5_rh",
+    "era5_tcc",
+    "era5_lai_hv",
+    "era5_lai_lv",
+    "era5_stl1",
+    "era5_u10",
+    "era5_v10",
+    "era5_ssr",
+    "era5_ssrd",
+    "era5_tp",
+    "era5_slhf",
+    "era5_e",
+    "era5_sshf"
+  )
+  era5_pts <- list()
+  for (i in seq_along(era5_var)) {
+    era5_pts[[i]] <- exactextractr::exact_extract(
+      get(era5_var[i]),
+      sf::st_geometry(bufs_pol),
+      fun = "mean",
+      progress = FALSE) |>
+      tidyr::pivot_longer(
+        cols = starts_with("mean."),
+        names_to = "time",
+        values_to = era5_var[i]
+    ) |>
+    dplyr::mutate(
+      time = sub("mean.", "", time),
+      time = as.POSIXct(time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+    )
+    era5_pts[[i]]$geometry <- rep(
+      terra::geom(pts, wkt = TRUE),
+      each = length(unique(era5_pts[[i]]$time))
+    )
   }
-  # check that time is a POSIXct with formar "%Y-%m-%d %H:%M:%S"
-  if (!inherits(pts$time, "POSIXct")) {
-    stop("time is not a POSIXct.")
-  }
-  # extract era5 data
-  start_time <- Sys.time()
-  # check crs
-  if (!terra::same.crs(pts, era5)) {
-    pts <- sf::st_transform(pts, sf::st_crs(era5))
-  }
-  n_hours <- 24
-  n_loc <- length(terra::unique(pts$geometry))
-  batches <- 1:(nrow(pts) / (n_hours * n_loc))
-  pts$era5 <- NA
-  m <- terra::match(pts$time, terra::time(era5))
-  for (i in batches) {
-    indexes <- ((i - 1) * (n_hours * n_loc)) + 1:(n_hours * n_loc)
-    i_layers <- paste0("t2m_", m[indexes])
-    # era5 t2m is in Kelvin
-    pts[indexes, ]$era5 <- terra::extract(era5,
-                                          pts[indexes, ],
-                                          layer = i_layers)[, 3] - 273.15
-  }
-  end_time <- Sys.time()
-  end_time - start_time
-  # return data
-  return(pts)
+  pts_era5 <- Reduce(
+    function(x, y) merge(x, y, by = c("time", "geometry")),
+    era5_pts
+  ) |>
+    terra::vect(geom = "geometry", crs = "epsg:4326", keepgeom = TRUE)
+  return(pts_era5)
 }
 
 #' Extracts elevation at spatial points

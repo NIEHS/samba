@@ -68,7 +68,7 @@ inference_mod6 <- function(data,
   cat("Number of data points: ", nrow(data), "\n")
   cat("Number of prediction points: ", nrow(pred), "\n")
 
-  # scale covariates
+  # scale covariates (except elev)
   covar <- c(
     "elev",
     "tcc",

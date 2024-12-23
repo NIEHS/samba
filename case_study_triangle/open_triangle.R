@@ -12,8 +12,10 @@ open_triangle <- function(
   # Area of interest
   path <- paste0("./input/", "500Cities_City_11082016/CityBoundaries.shp")
   data$plot_shp <- terra::vect(path)
-  data$plot_shp <- data$plot_shp[which(data$plot_shp$NAME %in%
-    c("Raleigh", "Durham", "Cary")), ]
+  data$plot_shp <- data$plot_shp[
+    which(data$plot_shp$NAME %in% c("Raleigh", "Durham", "Cary")),
+  ]
+
   # Create a rectangle around the Triangle area
   data$area_rect <- terra::ext(data$plot_shp) |>
     terra::as.polygons(crs = terra::crs(data$plot_shp)) |>
@@ -68,7 +70,16 @@ open_triangle <- function(
   }
 
   if (covariates == TRUE) {
-    data$era5 <- terra::rast("../input/era5_2021_07.nc")
+    path_instant <- paste0(
+      "../input/era5_us_2021_05to09/",
+      "data_stream-oper_stepType-instant.nc"
+    )
+    path_accum <- paste0(
+      "../input/era5_us_2021_05to09/",
+      "data_stream-oper_stepType-accum.nc"
+    )
+    data$era5_instant <- terra::rast(path_instant)
+    data$era5_accum <- terra::rast(path_accum)
     imp_path <- "../input/data_files/nlcd_2021_impervious_l48_20230630.img"
     imp <- terra::rast(imp_path)
     tcc_path <- paste0(

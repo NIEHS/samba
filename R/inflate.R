@@ -4,7 +4,7 @@
 #' @param s a terra::SpatVector of points (eg: points of a 100km * 100km grid)
 #' @param yyyy a numeric year
 #' @param mm a numeric month
-#' @return a sf object with a time column and duplicated spatial covariates
+#' @return a spatRaster object with a time column and duplicated spatial covariates
 #' along the time dimension
 #' @importFrom sf st_as_sf
 inflate <- function(s, yyyy, mm) {
@@ -23,5 +23,7 @@ inflate <- function(s, yyyy, mm) {
   n <- nrow(st)
   st <- st[rep(seq_len(nrow(st)), times = length(dates)), ]
   st$time <- rep(dates, each = n)
+  st <- st |>
+    terra::vect()
   return(st)
 }
