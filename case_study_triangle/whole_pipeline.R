@@ -380,8 +380,8 @@ if (save_graphs) {
     )
   }
 
-  col_mean_fixed <- colnames(info)[grep("^hour.*_mean$", colnames(info))]
-  col_sd_fixed <- colnames(info)[grep("^hour.*_sd$", colnames(info))]
+  col_mean_fixed <- colnames(out$info)[grep("^hour.*_mean$", colnames(out$info))]
+  col_sd_fixed <- colnames(out$info)[grep("^hour.*_sd$", colnames(out$info))]
   covar_names <- unique(sub(".*\\.(.*?)_.*", "\\1", col_mean_fixed))
   coeffs <- data.frame(
     rep(1:24, length(covar_names)),

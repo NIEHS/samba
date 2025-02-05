@@ -1,5 +1,5 @@
 # Triangle area: geographical context and meteorological conditions
-
+setwd("/ddn/gs1/home/marquesel/samba/case_study_triangle")
 devtools::load_all()
 
 # create storage folder if they do not exist
@@ -12,7 +12,7 @@ if (!dir.exists("./graphs/meteorology")) {
 
 ## Open area shapefiles
 source("open_triangle.R")
-data <- open_triangle(ref_network = TRUE)
+data <- open_triangle(ref_network = TRUE, covariates = TRUE)
 
 # METEOROLOGICAL CONDITIONS ON JULY 2021
 
@@ -233,6 +233,230 @@ for (i in seq_along(site_id)) {
     filename = paste0(
       "./graphs/meteorology/meteo_",
       site_id[i],
+      ".png"
+    ),
+    width = 25,
+    height = 7,
+    dpi = 300
+  )
+}
+
+
+# era5 
+
+path_instant <- paste0(
+  "../input/era5_us_2021_05to09/",
+   "data_stream-oper_stepType-instant.nc"
+)
+path_accum <- paste0(
+  "../input/era5_us_2021_05to09/",
+  "data_stream-oper_stepType-accum.nc"
+)
+
+  # get ncdf time
+  nc <- ncdf4::nc_open(path_accum)
+  times_accum <- ncdf4::ncvar_get(nc, "valid_time")
+  ncdf4::nc_close(nc)
+
+  nc <- ncdf4::nc_open(path_instant)
+  times_instant <- ncdf4::ncvar_get(nc, "valid_time")
+  ncdf4::nc_close(nc)
+ 
+  # Create a 30,000-meter buffer around points
+  # and faster incoming computations
+  buf_area_rect <- data$area_rect
+  buf_area_rect <- terra::project(buf_area_rect, y = data$era5_instant)
+  era5_instant <- terra::crop(data$era5_instant, buf_area_rect, snap = "out")
+  era5_accum <- terra::crop(data$era5_accum, buf_area_rect, snap = "out")
+  varnames_i <- terra::varnames(data$era5_instant)
+  varnames_a <- terra::varnames(data$era5_accum)
+  ts <- as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
+  te <- as.POSIXct("2021-07-31 23:59:59", tz = "UTC")
+
+  for (i in varnames_i) {
+    r <- era5_instant[i]
+    terra::time(r) <- as.POSIXct(
+      times_instant,
+      origin = "1970-01-01 00:00:00",
+      format = "%Y-%m-%d %H:%M:%S",
+      tz = "UTC"
+    )
+    # Find the indices of the layers within the specified time range
+    time_idx <- which(terra::time(r) >= ts & terra::time(r) <= te)
+    r <- r[[time_idx]]
+    names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
+    assign(paste0("era5_", i), r)
+  }
+  era5_t2m <- era5_t2m - 273.15
+  era5_d2m <- era5_d2m - 273.15
+  # calculation of rh from t2m and d2m
+  e_t2m <- 6.1078 * exp((17.1 * era5_t2m) / (235 + era5_t2m))
+  e_d2m <- 6.1078 * exp((17.1 * era5_d2m) / (235 + era5_d2m))
+  era5_rh <- e_d2m / e_t2m
+  for (i in varnames_a) {
+    r <- era5_accum[[grep(
+      paste0("^", i, "_"),
+      terra::names(era5_accum)
+    )]]
+    terra::time(r) <- as.POSIXct(
+      times_accum,
+      origin = "1970-01-01 00:00:00",
+      format = "%Y-%m-%d %H:%M:%S",
+      tz = "UTC"
+    )
+    # Find the indices of the layers within the specified time range
+    time_idx <- which(terra::time(r) >= ts & terra::time(r) <= te)
+    r <- r[[time_idx]]
+    names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
+    assign(paste0("era5_", i), r)
+  }
+
+terra::plot(era5_t2m[[1]])
+df <- as.data.frame(era5_t2m, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_t2m <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("2 metre temperature (C)")
+
+terra::plot(era5_rh[[1]])
+df <- as.data.frame(era5_rh, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_rh <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Relative Humidity")
+
+
+df <- as.data.frame(era5_u10, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_u10 <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("10 metre U wind component")
+
+df <- as.data.frame(era5_v10, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_v10 <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("10 metre V wind component")
+
+df <- as.data.frame(era5_stl1, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_stl1 <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Soil temperature level 1")
+
+df <- as.data.frame(era5_lai_lv, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_lai_lv <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Leaf area index, low vegetation")
+
+df <- as.data.frame(era5_lai_hv, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_lai_hv <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Leaf area index, high vegetation")
+terra::plot(data$era5_instant["lai_hv"][[150]])
+
+df <- as.data.frame(era5_tcc, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_tcc <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Total cloud cover")
+terra::plot(data$era5_instant["tcc"][[150]])
+
+df <- as.data.frame(era5_tp, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_tp <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Total precipitation (m)")
+
+df <- as.data.frame(era5_slhf, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_slhf <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Surface latent heat flux (J m**-2)")
+terra::plot(data$era5_accum["slhf"][[15]])
+
+
+df <- as.data.frame(era5_ssr, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_ssr <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Surface net short-wave (solar) radiation (J m**-2)")
+terra::plot(data$era5_accum["ssr"][[15]])
+
+df <- as.data.frame(era5_sshf, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_sshf <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Surface sensible heat flux (J m**-2)")
+terra::plot(data$era5_accum["sshf"][[15]])
+
+df <- as.data.frame(era5_ssrd, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_ssrd <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Surface short-wave (solar) radiation downwards (J m**-2)")
+terra::plot(data$era5_accum["ssrd"][[15]])
+
+df <- as.data.frame(era5_e, xy = TRUE) |>
+  tidyr::pivot_longer(-(x:y), names_to = "time", values_to = "var")
+df$time <- as.POSIXct(df$time, tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
+df$id <- paste0(df$x, "_", df$y)
+p_e <- ggplot(df) +
+  geom_line(aes(x = time, y = var, group = id, color = id)) +
+  ylab("Evaporation (m of water equivalent)")
+terra::plot(data$era5_accum["e"][[15]])
+
+varnames <- c(
+  "t2m",
+  "rh",
+  "u10",
+  "v10",
+  "stl1",
+  "lai_hv",
+  "lai_lv",
+  "tcc",
+  "tp",
+  "slhf",
+  "ssr",
+  "sshf",
+  "ssrd",
+  "e"
+)
+
+for (i in varnames) {
+  plot <- get(paste0("p_", i))
+  ggsave(plot,
+    filename = paste0(
+      "./graphs/meteorology/meteo_timeserie_era5_",
+      i,
       ".png"
     ),
     width = 25,
