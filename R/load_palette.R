@@ -84,8 +84,7 @@ load_palette <- function(name) {
         "imp" = "red",
         "fch" = "green",
         "bf" = "purple",
-        "era5" = "orange",
-        "et" = "darkcyan"
+        "tcc" = "orange"
       )
       return(covariates)
   }
