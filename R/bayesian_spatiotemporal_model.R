@@ -17,7 +17,7 @@
 #' @importFrom terra as.points as.polygons buffer crs ext intersect project
 #' @author Eva Marques
 #' @export
-inference_mod9 <- function(data,
+inference_mod <- function(data,
                            pred,
                            polygon,
                            ts,
