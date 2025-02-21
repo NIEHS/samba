@@ -14,18 +14,8 @@ extract_era5 <- function(
     "v10",
     "d2m",
     "t2m",
-    "stl1",
-    "lai_hv",
-    "lai_lv",
     "tcc",
-    "tp",
-    "slhf",
-    "ssr",
-    "sshf",
-    "ssrd",
-    "e",
-    "tp",
-    "slhf"
+    "tp"
   )
   stopifnot(
     "era5 variables missing" =

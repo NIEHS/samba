@@ -9,7 +9,7 @@
 #' @importFrom sf st_as_sf
 inflate <- function(s, ts, te) {
   dates <- seq(from = ts, to = te, by = "hour")
-  dates <- lubridate::with_tz(tz = "UTC")
+  dates <- lubridate::with_tz(dates, tz = "UTC")
   # create a spatiotemporal datatable
   st <- sf::st_as_sf(s)
   n <- nrow(st)

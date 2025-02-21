@@ -17,13 +17,15 @@
 #' @importFrom terra as.points as.polygons buffer crs ext intersect project
 #' @author Eva Marques
 #' @export
-inference_mod <- function(data,
-                           pred,
-                           polygon,
-                           ts,
-                           te,
-                           verbose = FALSE,
-                           debug = FALSE) {
+inference_mod <- function(
+  data,
+  pred,
+  polygon,
+  ts,
+  te,
+  verbose = FALSE,
+  debug = FALSE
+  ) {
   stopifnot(
     "lon missing" = "lon" %in% colnames(data),
     "lat missing" = "lat" %in% colnames(data),

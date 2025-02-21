@@ -2,22 +2,22 @@
 % Please edit documentation in R/inflate.R
 \name{inflate}
 \alias{inflate}
-\title{Inflate the prediction grid raster to a spatiotemporal datatable}
+\title{Inflate the prediction grid raster to a spatiotemporal SpatVector}
 \usage{
-inflate(s, yyyy, mm)
+inflate(s, ts, te)
 }
 \arguments{
 \item{s}{a terra::SpatVector of points (eg: points of a 100km * 100km grid)}
 
-\item{yyyy}{a numeric year}
+\item{ts}{starting time}
 
-\item{mm}{a numeric month}
+\item{te}{ending time}
 }
 \value{
-a sf object with a time column and duplicated spatial covariates
+a spatVector object with a time column and duplicated spatial covariates
 along the time dimension
 }
 \description{
-Inflate the prediction grid raster to a spatiotemporal datatable
-with dates
+Inflate the prediction grid raster to a spatiotemporal SpatVector
+with datetime in "time" column
 }
