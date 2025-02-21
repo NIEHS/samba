@@ -2,14 +2,12 @@ extract_era5 <- function(
   pts_st,
   era5_accum,
   era5_instant,
-  path_accum,
-  path_instant,
+  era5_accum_path,
+  era5_instant_path,
   ts,
   te
   ) {
-  varnames_i <- terra::varnames(era5_instant)
-  varnames_a <- terra::varnames(era5_accum)
-  all_var <- c(
+  era5_var_bhm <- c(
     "u10",
     "v10",
     "d2m",
@@ -17,18 +15,22 @@ extract_era5 <- function(
     "tcc",
     "tp"
   )
+  varnames_i <- terra::varnames(era5_instant)
+  varnames_i <- varnames_i[varnames_i %in% era5_var_bhm]
+  varnames_a <- terra::varnames(era5_accum)
+  varnames_a <- varnames_a[varnames_a %in% era5_var_bhm]
   stopifnot(
     "era5 variables missing" =
-      all_var %in% cbind(varnames_i, varnames_a)
+      era5_var_bhm %in% cbind(varnames_i, varnames_a)
   )
   # get ncdf time
-  nc <- ncdf4::nc_open(path_accum)
+  nc <- ncdf4::nc_open(era5_accum_path)
   times_accum <- ncdf4::ncvar_get(nc, "valid_time")
   ncdf4::nc_close(nc)
-
-  nc <- ncdf4::nc_open(path_instant)
+  nc <- ncdf4::nc_open(era5_instant_path)
   times_instant <- ncdf4::ncvar_get(nc, "valid_time")
   ncdf4::nc_close(nc)
+  message("     era5 time extracted from netcdf!")
   # select only points
   pts <- terra::geom(pts_st, wkt = TRUE) |>
     unique() |>
@@ -41,7 +43,7 @@ extract_era5 <- function(
   buf_area_rect <- terra::project(buf_area_rect, y = era5_instant)
   era5_instant <- terra::crop(era5_instant, buf_area_rect, snap = "out")
   era5_accum <- terra::crop(era5_accum, buf_area_rect, snap = "out")
-
+  message("     era5 cropped around area!")
   for (i in varnames_i) {
     r <- era5_instant[i]
     terra::time(r) <- as.POSIXct(
@@ -56,12 +58,7 @@ extract_era5 <- function(
     names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
     assign(paste0("era5_", i), r)
   }
-  era5_t2m <- era5_t2m - 273.15
-  era5_d2m <- era5_d2m - 273.15
-  # calculation of rh from t2m and d2m
-  e_t2m <- 6.1078 * exp((17.1 * era5_t2m) / (235 + era5_t2m))
-  e_d2m <- 6.1078 * exp((17.1 * era5_d2m) / (235 + era5_d2m))
-  era5_rh <- e_d2m / e_t2m
+  message("     instant era5 var prepared!")
   for (i in varnames_a) {
     r <- era5_accum[[grep(
       paste0("^", i, "_"),
@@ -79,6 +76,13 @@ extract_era5 <- function(
     names(r) <- format(terra::time(r), "%Y-%m-%d %H:%M:%S")
     assign(paste0("era5_", i), r)
   }
+  era5_t2m <- era5_t2m - 273.15
+  era5_d2m <- era5_d2m - 273.15
+  # calculation of rh from t2m and d2m
+  e_t2m <- 6.1078 * exp((17.1 * era5_t2m) / (235 + era5_t2m))
+  e_d2m <- 6.1078 * exp((17.1 * era5_d2m) / (235 + era5_d2m))
+  era5_rh <- e_d2m / e_t2m
+  message("     accum era5 var prepared!")
   bufs_pol <- terra::buffer(pts, width = 15000) |>
     sf::st_as_sf()
   era5_var <- c(
@@ -86,18 +90,11 @@ extract_era5 <- function(
     "era5_d2m",
     "era5_rh",
     "era5_tcc",
-    "era5_lai_hv",
-    "era5_lai_lv",
-    "era5_stl1",
     "era5_u10",
     "era5_v10",
-    "era5_ssr",
-    "era5_ssrd",
-    "era5_tp",
-    "era5_slhf",
-    "era5_e",
-    "era5_sshf"
+    "era5_tp"
   )
+  message("     buffers around locations created!")
   era5_pts <- list()
   for (i in seq_along(era5_var)) {
     era5_pts[[i]] <- exactextractr::exact_extract(
@@ -124,6 +121,7 @@ extract_era5 <- function(
     era5_pts
   ) |>
     terra::vect(geom = "geometry", crs = "epsg:4326", keepgeom = TRUE)
+    message("     era5 variables extracted at each location!")
   return(pts_era5)
 }
 

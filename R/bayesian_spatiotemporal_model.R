@@ -73,25 +73,14 @@ inference <- function(
   # scale covariates
   covar <- c(
     "elev",
-    "slope",
-    "tcc",
     "imp",
     "fch",
-    "bf",
     "era5_t2m", # 2 metre temperature
-    "era5_rh", # Relative humidity deduced from t2m and d2m 
-    "era5_lai_lv", # Leaf area index, low vegetation
-    "era5_lai_hv", # Leaf area index, high vegetation
+    "era5_rh", # Relative humidity deduced from t2m and d2m
     "era5_u10", # 10 metre U wind component
     "era5_v10", # 10 metre V wind component
-    "era5_stl1", # Soil temperature level 1
     "era5_tcc", # Total cloud cover
-    "era5_tp", # Total precipitation
-    "era5_slhf", # Surface latent heat flux
-    "era5_ssr", # Surface net short-wave (solar) radiation
-    "era5_sshf", # Surface sensible heat flux
-    "era5_ssrd", # Surface short-wave (solar) radiation downwards
-    "era5_e" # Evaporation
+    "era5_tp" # Total precipitation
   )
   # for (p in covar) {
   #   data[[p]] <- scale(data[[p]],
@@ -185,22 +174,13 @@ inference <- function(
       data.frame(
         int = rep(1, nrow(data)),
         elev = data$elev,
-        tcc = data$tcc,
         imp = data$imp,
         fch = data$fch,
-        bf = data$bf,
         era5_t2m = data$era5_t2m,
         era5_rh = data$era5_rh,
-        era5_lai_lv = data$era5_lai_lv,
-        era5_lai_hv = data$era5_lai_hv,
         era5_u10 = data$era5_u10,
         era5_v10 = data$era5_v10,
-        era5_stl1 = data$era5_stl1,
         era5_tp = data$era5_tp,
-        era5_slhf = data$era5_slhf,
-        era5_ssr = data$era5_ssr,
-        era5_sshf = data$era5_sshf,
-        era5_ssrd = data$era5_ssrd,
         era5_tcc = data$era5_tcc,
         timeidx = data$timeidx,
         local_hour = as.factor(data$local_hour)
@@ -216,22 +196,13 @@ inference <- function(
       data.frame(
         int = rep(1, nrow(pred)),
         elev = pred$elev,
-        tcc = pred$tcc,
         imp = pred$imp,
         fch = pred$fch,
-        bf = pred$bf,
         era5_t2m = pred$era5_t2m,
         era5_rh = pred$era5_rh,
-        era5_lai_lv = pred$era5_lai_lv,
-        era5_lai_hv = pred$era5_lai_hv,
         era5_u10 = pred$era5_u10,
         era5_v10 = pred$era5_v10,
-        era5_stl1 = pred$era5_stl1,
         era5_tp = pred$era5_tp,
-        era5_slhf = pred$era5_slhf,
-        era5_ssr = pred$era5_ssr,
-        era5_sshf = pred$era5_sshf,
-        era5_ssrd = pred$era5_ssrd,
         era5_tcc = pred$era5_tcc,
         timeidx = pred$timeidx,
         local_hour = as.factor(pred$local_hour)

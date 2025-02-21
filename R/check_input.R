@@ -2,37 +2,37 @@ check_cws_raw <- function(cws_raw) {
   stopifnot(inherits(cws_raw, "SpatVector"))
   var <- c("lon", "lat", "time", "temp", "site_id")
   stopifnot("missing columns in cws_raw" = all(var %in% names(cws_raw)))
-  message("cws_raw valid!")
+  message("  cws_raw valid!")
 }
 
 check_fch <- function(fch) {
   stopifnot(inherits(fch, "SpatRaster"))
-  message("fch valid!")
+  message("  fch valid!")
 }
 
 check_elev <- function(elev) {
   stopifnot(inherits(elev, "SpatRaster"))
-  message("elev valid!")
+  message("  elev valid!")
 }
 
 check_imp <- function(imp) {
   stopifnot(inherits(imp, "SpatRaster"))
-  message("imp valid!")
+  message("  imp valid!")
 }
 
 check_era5_instant <- function(era5_instant) {
   stopifnot(inherits(era5_instant, "SpatRaster"))
-  message("era5_instant valid!")
+  message("  era5_instant valid!")
 }
 
 check_era5_accum <- function(era5_accum) {
   stopifnot(inherits(era5_accum, "SpatRaster"))
-  message("accum valid!")
+  message("  accum valid!")
 }
 
 check_area_shp <- function(area_shp) {
   stopifnot(inherits(area_shp, "SpatVector"))
-  message("area_shp valid!")
+  message("  area_shp valid!")
 }
 
 check_ts_te <- function(ts, te) {

@@ -9,7 +9,7 @@ samba <- function(
   era5_accum_path,
   era5_instant_path
 ) {
-  # STEP 1: LOAD INPUT
+  message("...load input...")
   input <- list()
   input$cws_raw <- readRDS(cws_raw_path)$obs |>
     terra::vect(crs = "epsg:4326", keepgeom = TRUE)
@@ -21,16 +21,16 @@ samba <- function(
   input$area_shp <- terra::vect(area_shp_path)
   input$ts <- ts
   input$te <- te
-  # STEP 2: CHECK INPUT
+  message("...check input...")
   check_input(input)
-  # STEP 3: PREPARE BHM MATERIALS
+  message("...prepare BHM materials...")
   # bhm_materials = list with cws, pred, area_rect
   bhm_materials <- prepare_bhm_materials(
     input,
     era5_accum_path,
     era5_instant_path
   )
-  # STEP 4: BHM INFERENCE
+  message("...BHM inference...")
   inf_out <- inference(
     bhm_materials$cws,
     bhm_materials$pred,
@@ -40,6 +40,7 @@ samba <- function(
     verbose = TRUE,
     debug = TRUE
   )
+  message("...predictions rasterization...")
   # rasterize pred_mean and pred_sd
   pred_mean <- rasterize_pred(inf_out$pred, varname = "pred_mean")
   pred_sd <- rasterize_pred(inf_out$pred, varname = "pred_sd")
@@ -50,5 +51,6 @@ samba <- function(
     "pred_mean" = pred_mean,
     "pred_sd" = pred_sd
   )
+  message("...work completed!")
   return(output)
 }
