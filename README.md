@@ -1,4 +1,4 @@
-# barbara
+# samba: Spatiotemporal Air-temperature Model with Bayesian Approach
 
 The development of this library is in progress.
 
