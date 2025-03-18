@@ -1,5 +1,9 @@
 # samba: Spatiotemporal Air-temperature Model with Bayesian Approach
 
+
+![Newyork - Philadelphia, July 2024 Urban heat island](https://github.com/user-attachments/assets/cd0e4092-af08-4687-a65f-93f5ddd6733c)
+
+
 The development of this library is in progress.
 
 ## Spatiotemporal Bayesian model for the creation of an hourly gridded product of air temperature across the US
