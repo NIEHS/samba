@@ -3,6 +3,7 @@
 #' @param name character
 #' @return list of colors
 #' @importFrom RColorBrewer brewer.pal
+#' @importFrom fields tim.colors
 #' @author Eva Marques
 #' @export
 load_palette <- function(name) {
