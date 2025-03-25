@@ -2,7 +2,6 @@
 #' @description Load useful homemade palettes for plots
 #' @param name character
 #' @return list of colors
-#' @importFrom fields tim.colors
 #' @importFrom RColorBrewer brewer.pal
 #' @author Eva Marques
 #' @export
