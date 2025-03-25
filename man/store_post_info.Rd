@@ -2,7 +2,8 @@
 % Please edit documentation in R/store_post_info.R
 \name{store_post_info}
 \alias{store_post_info}
-\title{Store marginal posterior statistics}
+\title{Store marginal posterior statistics
+Store marginal posterior statistics}
 \usage{
 store_post_info(mod, info)
 }
@@ -16,4 +17,8 @@ info list with appended marginal posterior statistics
 }
 \description{
 Store marginal posterior statistics
+Store marginal posterior statistics
+}
+\author{
+Eva Marques
 }

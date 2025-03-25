@@ -7,7 +7,6 @@
 #' accurate time information.
 #' @param era5_instant_path character. Path to era5 accumulated netcdf to
 #' extract accurate time information.
-#' @import rnaturalearthdata
 #' @importFrom rnaturalearth ne_countries
 #' @importFrom terra as.polygons buffer ext crs unique project
 #' intersect crop merge
