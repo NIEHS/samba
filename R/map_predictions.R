@@ -1,5 +1,20 @@
-
+#' Map urban heat island with point observations
+#' @description Map urban heat island infered with the Bayesian model
+#' with observations from weather stations
+#' @param pred_stat a dataframe of predictions
+#' @param obs a dataframe of point observations
+#' @param borders vector with borders shapefile (as a landmark on the map)
+#' @param time POSIXct time of the map
+#' @return a ggplot2 of a map
+#' @importFrom lubridate hours seconds
+#' @importFrom sf st_as_sf
+#' @importFrom dplyr between
+#' @import ggplot2
+#' @importFrom ggspatial annotation_scale annotation_north_arrow
+#' @author Eva Marques
+#' @export
 map_uhi_obs <- function(pred_stat, obs, borders, time) {
+  lon <- lat <- pred_mean <- temp <- network <- NULL
   te <- time + lubridate::hours(1) - lubridate::seconds(1)
   pred_plot <- pred_stat[which(pred_stat$time == time), ] |>
     sf::st_as_sf(coords = c("lon", "lat"), remove = FALSE, crs = 4326)
@@ -9,79 +24,85 @@ map_uhi_obs <- function(pred_stat, obs, borders, time) {
   ndeg <- ceiling(range[2] - range[1])
   tn <- floor(mean(pred_plot$pred_mean, na.rm = TRUE) - ndeg / 2)
   tx <- ceiling(mean(pred_plot$pred_mean, na.rm = TRUE) + ndeg / 2)
-  pal_ipcc <- list(c(103, 0, 31),
-                   c(178, 24, 43),
-                   c(214, 96, 77),
-                   c(244, 165, 130),
-                   c(253, 219, 199),
-                   c(247, 247, 247),
-                   c(209, 229, 240),
-                   c(146, 197, 222),
-                   c(67, 147, 195),
-                   c(33, 102, 172),
-                   c(5, 48, 97)
-  ) |>
-    lapply(function(x) rgb(x[1], x[2], x[3], maxColorValue = 255)) |>
-    rev()
+  pal_ipcc <- load_palette("temp_ipcc")
   shape <- c("WU" = 21)
   labels <- c("WU" = "Weather Underground")
-  p <- ggplot() +
-    geom_tile(
-      data = pred_plot, aes(x = lon,
-                            y = lat,
-                            fill = pred_mean),
-      width = 0.01, height = 0.01
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_tile(
+      data = pred_plot,
+      ggplot2::aes(
+        x = lon,
+        y = lat,
+        fill = pred_mean
+      ),
+      width = 0.01,
+      height = 0.01
     ) +
-    geom_point(
+    ggplot2::geom_point(
       data = obs,
-      aes(x = lon, y = lat, fill = temp, shape = network),
+      ggplot2::aes(x = lon, y = lat, fill = temp, shape = network),
       size = 3
     ) +
-    geom_sf(data = borders, fill = NA, size = 0.05) +
-    coord_sf(crs = 4326) +
-    scale_fill_gradientn(
+    ggplot2::geom_sf(data = borders, fill = NA, size = 0.05) +
+    ggplot2::coord_sf(crs = 4326) +
+    ggplot2::scale_fill_gradientn(
       colours = pal_ipcc,
       na.value = NA,
       breaks = seq(tn, tx, 1),
       limits = c(tn, tx)
     ) +
-    labs(fill = "T (°C)") +
-    ggtitle(strftime(time, format = "%Y-%m-%d %H:%M:%S EDT")) +
-    scale_shape_manual("", values = shape, labels = labels) +
-    guides(fill = guide_colourbar(barwidth = 23, barheight = 1.5)) +
+    ggplot2::labs(fill = "T (°C)") +
+    ggplot2::ggtitle(strftime(time, format = "%Y-%m-%d %H:%M:%S EDT")) +
+    ggplot2::scale_shape_manual("", values = shape, labels = labels) +
+    ggplot2::guides(
+      fill = ggplot2::guide_colourbar(barwidth = 23, barheight = 1.5)
+    ) +
     ggspatial::annotation_scale(
       location = "tr", text_cex = 1.5,
-      pad_x = unit(0.5, "cm"),
-      pad_y = unit(0.5, "cm"),
-      height = unit(0.30, "cm")
+      pad_x = ggplot2::unit(0.5, "cm"),
+      pad_y = ggplot2::unit(0.5, "cm"),
+      height = ggplot2::unit(0.30, "cm")
     ) +
     ggspatial::annotation_north_arrow(
       location = "br", which_north = "true",
-      pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm")
+      pad_x = ggplot2::unit(0.5, "cm"), pad_y = ggplot2::unit(0.5, "cm")
     ) +
-    theme(
+    ggplot2::theme(
       legend.position = "bottom",
       legend.direction = "horizontal",
       legend.box = "vertical",
-      axis.title = element_blank(),
-      axis.text.x = element_text(size = 18),
-      axis.text.y = element_text(
+      axis.title = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(size = 18),
+      axis.text.y = ggplot2::element_text(
         size = 18,
         angle = 90,
         hjust = .5
       ),
-      plot.caption = element_text(size = 18),
-      legend.text = element_text(size = 18),
-      legend.title = element_text(size = 18),
-      panel.background = element_rect(fill = "white"),
-      panel.grid.major = element_line(colour = "grey")
+      plot.caption = ggplot2::element_text(size = 18),
+      legend.text = ggplot2::element_text(size = 18),
+      legend.title = ggplot2::element_text(size = 18),
+      panel.background = ggplot2::element_rect(fill = "white"),
+      panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-  return(p)
+  p
 }
 
+#' Map urban heat island
+#' @description Map urban heat island infered with the Bayesian model
+#' @param uhi urban heat island SpatRaster
+#' @param borders vector with borders shapefile (as a landmark on the map)
+#' @param ts POSIXct time of the map
+#' @return a ggplot2 of a map
+#' @import ggplot2
+#' @importFrom ggspatial annotation_scale annotation_north_arrow
+#' @importFrom terra time
+#' @importFrom tidyterra geom_spatraster geom_spatvector
+#' @author Eva Marques
+#' @export
 map_uhi <- function(uhi, borders, ts) {
+  tz <- NULL
   uhi_ts <- uhi[[which(terra::time(uhi) == ts)]]
-  p <- ggplot() +
+  p <- ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = uhi_ts) +
     tidyterra::geom_spatvector(data = borders,
                                fill = NA,
@@ -114,5 +135,5 @@ map_uhi <- function(uhi, borders, ts) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-  return(p)
+  p
 }

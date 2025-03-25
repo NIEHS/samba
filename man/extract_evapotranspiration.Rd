@@ -16,3 +16,6 @@ extract_evapotranspiration(pts, et, buf_radius = 500)
 \description{
 Extracts evapotranspiration at spatial points
 }
+\author{
+Eva Marques
+}

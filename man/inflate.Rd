@@ -14,10 +14,15 @@ inflate(s, ts, te)
 \item{te}{ending time}
 }
 \value{
-a spatVector object with a time column and duplicated spatial covariates
+a spatVector object with a time column
+and duplicated spatial covariates
 along the time dimension
 }
 \description{
-Inflate the prediction grid raster to a spatiotemporal SpatVector
+Inflate the prediction grid raster
+to a spatiotemporal SpatVector
 with datetime in "time" column
+}
+\author{
+Eva Marques
 }

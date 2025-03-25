@@ -16,3 +16,6 @@ extract_imperviousness(pts, imp, buf_radius = 500)
 \description{
 Extracts imperviousness at spatial points
 }
+\author{
+Eva Marques
+}

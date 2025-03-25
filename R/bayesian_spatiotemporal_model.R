@@ -1,5 +1,3 @@
-
-
 #' Spatiotemporal model inference with INLA
 #' @description
 #' Perform inference of a spatiotemporal model using INLA.
@@ -11,8 +9,13 @@
 #' @param ts model start time
 #' @param te model end time
 #' @param verbose logical, print INLA output
+#' @param debug logical, print INLA debugging info
 #' @return a list with the prediction and the model object
 #' @import INLA
+#' @importFrom terra ext as.polygons buffer crs vect project intersect
+#' as.points geom
+#' @importFrom lubridate with_tz hour
+#' @importFrom lutz tz_lookup_coords
 #' @importFrom dplyr between rename
 #' @importFrom terra as.points as.polygons buffer crs ext intersect project
 #' @author Eva Marques
@@ -25,13 +28,12 @@ inference <- function(
   te,
   verbose = FALSE,
   debug = FALSE
-  ) {
+) {
   stopifnot(
     "lon missing" = "lon" %in% colnames(data),
     "lat missing" = "lat" %in% colnames(data),
     "time missing" = "time" %in% colnames(data),
-    "temp missing" = "temp" %in% colnames(data)#,
-    #"temp_cal missing" = "temp_cal" %in% colnames(data)
+    "temp missing" = "temp" %in% colnames(data),
   )
   # check that polygon is a SpatVector
   stopifnot(
@@ -70,29 +72,6 @@ inference <- function(
   cat("Number of data points: ", nrow(data), "\n")
   cat("Number of prediction points: ", nrow(pred), "\n")
 
-  # scale covariates
-  covar <- c(
-    "elev",
-    "imp",
-    "fch",
-    "era5_t2m", # 2 metre temperature
-    "era5_rh", # Relative humidity deduced from t2m and d2m
-    "era5_u10", # 10 metre U wind component
-    "era5_v10", # 10 metre V wind component
-    "era5_tcc", # Total cloud cover
-    "era5_tp" # Total precipitation
-  )
-  # for (p in covar) {
-  #   data[[p]] <- scale(data[[p]],
-  #     center = mean(pred[[p]], na.rm = TRUE),
-  #     scale = sd(pred[[p]], na.rm = TRUE)
-  #   )
-  #   pred[[p]] <- scale(pred[[p]],
-  #     center = mean(pred[[p]], na.rm = TRUE),
-  #     scale = sd(pred[[p]], na.rm = TRUE)
-  #   )
-  # }
-
   info$mesh_max_edge <- 0.1
   info$mesh_cutoff <- 0.005
   # spatial mesh
@@ -100,7 +79,7 @@ inference <- function(
     terra::project("epsg:4326") |>
     terra::as.points()
   locs <- unique(data[, c("lon", "lat")])
-  mesh_s <- inla.mesh.2d(
+  mesh_s <- INLA::inla.mesh.2d(
     loc = cbind(locs$lon, locs$lat),
     max.edge = info$mesh_max_edge,
     cutoff = info$mesh_cutoff,
@@ -109,11 +88,6 @@ inference <- function(
       terra::geom(domain)[, c("y")]
     )
   )
-  # save mesh to ./graphs/mesh.png
-  # png("./graphs/mesh.png")
-  # plot(mesh_s)
-  # dev.off()
-
   # temporal mesh
   timedim <- list(
     time = sort(unique(data$time)),
@@ -166,7 +140,6 @@ inference <- function(
   stk_data <- INLA::inla.stack(
     tag = "data",
     data = list(
-      #y = data$temp_cal
       y = data$temp
     ),
     A = list(1, a_st),
@@ -213,7 +186,7 @@ inference <- function(
   stk_full <- INLA::inla.stack(stk_data, stk_pred)
 
   # rho = correlation with p(rho>0.5)=0.7 (prior for ar1)
-  # p(rho > 0.6) = 0.9
+  # and p(rho > 0.6) = 0.9
   info$pccor1_thresh <- 0.6
   info$pccor1_proba <- 0.9
 
@@ -240,10 +213,7 @@ inference <- function(
       )
     )
   )
-
   # model inference
-  #+ local_hour:bf + local_hour:tcc + f(timeidx, model = "iid")
-  #+ era5_slhf + era5_sshf + era5_ssrd +
   formula <- y ~ -1 + int + local_hour:elev + local_hour:fch + local_hour:imp +
     era5_t2m + era5_rh + era5_tp + era5_u10 + era5_v10 + era5_tcc +
     f(s,
@@ -254,7 +224,9 @@ inference <- function(
         hyper = list(
           rho = list(
             prior = "pccor1",
-            param = c(info$pccor1_thresh, info$pccor1_proba)))
+            param = c(info$pccor1_thresh, info$pccor1_proba)
+          )
+        )
       )
     )
   # -- to faster the algo
@@ -427,8 +399,9 @@ inference <- function(
         `local_hour21:imp` = 200,
         `local_hour22:imp` = 200,
         `local_hour23:imp` = 200
-        ),
-      expand.factor.strategy = "inla"),
+      ),
+      expand.factor.strategy = "inla"
+    ),
     control.compute = list(config = TRUE),
     control.inla = cinla,
     verbose = verbose,
@@ -602,8 +575,9 @@ inference <- function(
         `local_hour21:imp` = 200,
         `local_hour22:imp` = 200,
         `local_hour23:imp` = 200
-        ),
-      expand.factor.strategy = "inla"),
+      ),
+      expand.factor.strategy = "inla"
+    ),
     control.compute = list(config = TRUE),
     control.mode = list(theta = mod_mode$mode$theta, restart = FALSE),
     control.inla = cinla,

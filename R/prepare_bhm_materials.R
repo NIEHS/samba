@@ -1,11 +1,27 @@
-#' Process elevation raster
+#' @title Prepare samba Bayesian Hierarchical model materials.
+#' @description Prepare samba Bayesian Hierarchical model materials from
+#' input list containing necessary raw data.
+#' @param input list. Contains raw data: `cws_raw`, `elev`, `fch`,
+#' `imp`, `era5_instant`, `era5_accum`, `area_shp`
+#' @param era5_accum_path character. Path to era5 accumulated netcdf to extract
+#' accurate time information.
+#' @param era5_instant_path character. Path to era5 accumulated netcdf to
+#' extract accurate time information.
 #' @import rnaturalearthdata
 #' @importFrom rnaturalearth ne_countries
+#' @importFrom terra as.polygons buffer ext crs unique project
+#' intersect crop merge
+#' @importFrom lutz tz_lookup_coords
+#' @importFrom lubridate with_tz hour
+#' @importFrom sf st_as_sf st_as_sfc st_crs st_transform st_coordinates
+#' @return a list with samba function materials.
+#' @author Eva Marques
+#' @export
 prepare_bhm_materials <- function(
   input,
   era5_accum_path,
   era5_instant_path
-  ) {
+) {
   bhm_materials <- list()
   bhm_materials$area_rect <- terra::ext(input$area_shp) |>
     terra::as.polygons(crs = terra::crs(input$area_shp)) |>
@@ -33,20 +49,20 @@ prepare_bhm_materials <- function(
     inflate(input$ts, input$te)
   message("  spatial covariates extracted at PWS locations!")
   locs_era5 <- extract_era5(
-      locs_spatial,
-      input$era5_accum,
-      input$era5_instant,
-      era5_accum_path,
-      era5_instant_path,
-      input$ts,
-      input$te
-    )
-    message("  era5 covariates extracted at PWS locations!")
+    locs_spatial,
+    input$era5_accum,
+    input$era5_instant,
+    era5_accum_path,
+    era5_instant_path,
+    input$ts,
+    input$te
+  )
+  message("  era5 covariates extracted at PWS locations!")
   locs_covar <- merge(
-      as.data.frame(locs_spatial, geom = "wkt"),
-      as.data.frame(locs_era5, geom = "wkt"),
-      by = c("time", "geometry")
-    )
+    as.data.frame(locs_spatial, geom = "wkt"),
+    as.data.frame(locs_era5, geom = "wkt"),
+    by = c("time", "geometry")
+  )
   locs_covar$geometry <- sf::st_as_sfc(locs_covar$geometry)
   locs_covar <- sf::st_as_sf(locs_covar)
   sf::st_crs(locs_covar) <- 4326
@@ -63,9 +79,8 @@ prepare_bhm_materials <- function(
   bhm_materials$cws$local_hour <- lubridate::with_tz(
     bhm_materials$cws$time,
     tz = local_tz
-    ) |>
+  ) |>
     lubridate::hour()
-  
   # EXTRACT COVARIATES AT PREDICTION GRID LOCATION
   # Find 100km*100km cells id of bhm_materials$area_rect
   cells_id <- bhm_materials$area_rect |>
@@ -127,5 +142,5 @@ prepare_bhm_materials <- function(
   bhm_materials$pred$lat <- sf::st_coordinates(bhm_materials$pred)[, 2]
   bhm_materials$pred <- as.data.frame(bhm_materials$pred, xy = TRUE)
   message("  Prediction grid ready!")
-  return(bhm_materials)
+  bhm_materials
 }

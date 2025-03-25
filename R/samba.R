@@ -1,3 +1,18 @@
+#' @title Run the whole samba analysis.
+#' @description Run the whole samba analysis.
+#' @param ts POSIXct. Analysis starting time.
+#' @param te POSIXct. Analysis ending time.
+#' @param area_shp_path character. Area delimitation shapefile path.
+#' @param cws_raw_path character. Path to personal weather stations dataset.
+#' @param fch_path character. Path to forest canopy height raster.
+#' @param elev_path character. Path to elevation raster.
+#' @param imp_path character. Path to imperviousness raster.
+#' @param era5_accum_path character. Path to era5 accumulated netcdf.
+#' @param era5_instant_path character. Path to era5 instantaneous netcdf.
+#' @return a list with samba pipeline outputs.
+#' @importFrom terra vect rast
+#' @author Eva Marques
+#' @export
 samba <- function(
   ts,
   te,
@@ -44,7 +59,7 @@ samba <- function(
   # rasterize pred_mean and pred_sd
   pred_mean <- rasterize_pred(inf_out$pred, varname = "pred_mean")
   pred_sd <- rasterize_pred(inf_out$pred, varname = "pred_sd")
-  output <- list(
+  list(
     "input" = input,
     "bhm_materials" = bhm_materials,
     "inf_out" = inf_out,
@@ -52,5 +67,4 @@ samba <- function(
     "pred_sd" = pred_sd
   )
   message("...work completed!")
-  return(output)
 }

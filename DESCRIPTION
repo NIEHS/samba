@@ -1,5 +1,5 @@
-Package: barbara
-Title: barbara
+Package: samba
+Title: samba
 Version: 1.0.0
 Authors@R: c(
     person("Eva", "Marques", , "eva.marques@nih.gov", role = c("aut", "cre")),
@@ -21,7 +21,7 @@ Imports:
     methods,
     sf,
     stars,
-    terra,
+    terra (>= 1.8.29),
     tidyterra
 Suggests:
     covr,
@@ -31,4 +31,4 @@ Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

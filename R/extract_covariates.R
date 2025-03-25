@@ -1,12 +1,32 @@
+#' Extracts era5 covariates
+#' @description Extracts era5 covariates at spatial points
+#' @param pts_st a SpatVector or sf (should be spatiotemporal)
+#' @param era5_accum a SpatRaster with era5 accumulated covariates
+#' @param era5_instant a SpatRaster with era5 instantaneous covariates
+#' @param era5_accum_path character path to era5_accum netcdf to extract
+#' some correct timestamps
+#' @param era5_instant_path character path to era5_instant netcdf to extract
+#' some correct timestamps
+#' @param ts POSIXct of the start timestamp
+#' @param te POSIXct of the end timestamp
+#' @importFrom ncdf4 nc_open ncvar_get nc_close
+#' @importFrom terra varnames geom vect crs ext project crop as.polygons
+#' buffer time names
+#' @importFrom sf st_as_sf st_geometry
+#' @importFrom exactextractr exact_extract
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr mutate
+#' @importFrom tidyselect starts_with
+#' @author Eva Marques
+#' @export
 extract_era5 <- function(
-  pts_st,
-  era5_accum,
-  era5_instant,
-  era5_accum_path,
-  era5_instant_path,
-  ts,
-  te
-  ) {
+    pts_st,
+    era5_accum,
+    era5_instant,
+    era5_accum_path,
+    era5_instant_path,
+    ts,
+    te) {
   era5_var_bhm <- c(
     "u10",
     "v10",
@@ -81,7 +101,7 @@ extract_era5 <- function(
   # calculation of rh from t2m and d2m
   e_t2m <- 6.1078 * exp((17.1 * era5_t2m) / (235 + era5_t2m))
   e_d2m <- 6.1078 * exp((17.1 * era5_d2m) / (235 + era5_d2m))
-  era5_rh <- e_d2m / e_t2m
+  era5_rh <- e_d2m / e_t2m # nolint
   message("     accum era5 var prepared!")
   bufs_pol <- terra::buffer(pts, width = 15000) |>
     sf::st_as_sf()
@@ -101,16 +121,17 @@ extract_era5 <- function(
       get(era5_var[i]),
       sf::st_geometry(bufs_pol),
       fun = "mean",
-      progress = FALSE) |>
+      progress = FALSE
+    ) |>
       tidyr::pivot_longer(
-        cols = starts_with("mean."),
+        cols = tidyselect::starts_with("mean."),
         names_to = "time",
         values_to = era5_var[i]
-    ) |>
-    dplyr::mutate(
-      time = sub("mean.", "", time),
-      time = as.POSIXct(time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
-    )
+      ) |>
+      dplyr::mutate(
+        time = sub("mean.", "", time),
+        time = as.POSIXct(time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+      )
     era5_pts[[i]]$geometry <- rep(
       terra::geom(pts, wkt = TRUE),
       each = length(unique(era5_pts[[i]]$time))
@@ -121,8 +142,8 @@ extract_era5 <- function(
     era5_pts
   ) |>
     terra::vect(geom = "geometry", crs = "epsg:4326", keepgeom = TRUE)
-    message("     era5 variables extracted at each location!")
-  return(pts_era5)
+  message("     era5 variables extracted at each location!")
+  pts_era5
 }
 
 #' Extracts elevation at spatial points
@@ -134,6 +155,8 @@ extract_era5 <- function(
 #' @importFrom methods is
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
+#' @author Eva Marques
+#' @export
 extract_elevation <- function(pts, elev, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -155,9 +178,10 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   all_cov <- exactextractr::exact_extract(elev,
-                                          sf::st_geometry(bufs_pol),
-                                          fun = "mean",
-                                          progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   pts$elev <- all_cov[, 1]
   pts$slope <- all_cov[, 2]
   pts$aspect <- all_cov[, 3]
@@ -165,7 +189,7 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 
@@ -179,6 +203,8 @@ extract_elevation <- function(pts, elev, buf_radius = 500) {
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
 #' @importFrom exactextractr exact_extract
+#' @author Eva Marques
+#' @export
 extract_imperviousness <- function(pts, imp, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -200,13 +226,14 @@ extract_imperviousness <- function(pts, imp, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   pts$imp <- exactextractr::exact_extract(imp,
-                                          sf::st_geometry(bufs_pol),
-                                          fun = "mean",
-                                          progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 
@@ -219,6 +246,8 @@ extract_imperviousness <- function(pts, imp, buf_radius = 500) {
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
 #' @importFrom exactextractr exact_extract
+#' @author Eva Marques
+#' @export
 extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -240,13 +269,14 @@ extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   pts$tcc <- exactextractr::exact_extract(tcc,
-                                          sf::st_geometry(bufs_pol),
-                                          fun = "mean",
-                                          progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 #' Extracts forest canopy height at spatial points
@@ -258,6 +288,8 @@ extract_tree_canopy_cover <- function(pts, tcc, buf_radius = 500) {
 #' @importFrom methods is
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
+#' @author Eva Marques
+#' @export
 extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -279,13 +311,14 @@ extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   pts$fch <- exactextractr::exact_extract(fch,
-                                          sf::st_geometry(bufs_pol),
-                                          fun = "mean",
-                                          progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 
@@ -298,6 +331,8 @@ extract_forest_canopy_height <- function(pts, fch, buf_radius = 500) {
 #' @importFrom methods is
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
+#' @author Eva Marques
+#' @export
 extract_building_footprint <- function(pts, bf, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -319,13 +354,14 @@ extract_building_footprint <- function(pts, bf, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   pts$bf <- exactextractr::exact_extract(bf,
-                                         sf::st_geometry(bufs_pol),
-                                         fun = "mean",
-                                         progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 
@@ -338,6 +374,8 @@ extract_building_footprint <- function(pts, bf, buf_radius = 500) {
 #' @importFrom methods is
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
+#' @author Eva Marques
+#' @export
 extract_evapotranspiration <- function(pts, et, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -359,13 +397,14 @@ extract_evapotranspiration <- function(pts, et, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   pts$et <- exactextractr::exact_extract(et,
-                                         sf::st_geometry(bufs_pol),
-                                         fun = "mean",
-                                         progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "mean",
+    progress = FALSE
+  )
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(pts)
+  pts
 }
 
 #' Extracts local climate zone at spatial points
@@ -377,6 +416,8 @@ extract_evapotranspiration <- function(pts, et, buf_radius = 500) {
 #' @importFrom methods is
 #' @importFrom terra same.crs project buffer
 #' @importFrom sf st_as_sf
+#' @author Eva Marques
+#' @export
 extract_local_climate_zone <- function(pts, lcz, buf_radius = 500) {
   # check inputs
   if (!(methods::is(pts, "SpatVector"))) {
@@ -401,50 +442,55 @@ extract_local_climate_zone <- function(pts, lcz, buf_radius = 500) {
   bufs_pol <- terra::buffer(pts, width = buf_radius) |>
     sf::st_as_sf()
   at_bufs <- exactextractr::exact_extract(lcz,
-                                          sf::st_geometry(bufs_pol),
-                                          fun = "frac",
-                                          stack_apply = TRUE,
-                                          progress = FALSE)
+    sf::st_geometry(bufs_pol),
+    fun = "frac",
+    stack_apply = TRUE,
+    progress = FALSE
+  )
   # select only the columns of interest
   at_bufs <- at_bufs[names(at_bufs)[grepl("frac_", names(at_bufs))]]
   # change column names
   lcz_classes <- list(
     id = seq(1, 17, 1),
     class = c(seq(1, 10, 1), c("A", "B", "C", "D", "E", "F", "G")),
-    desc = c("Compact highrise",
-             "Compact midrise",
-             "Compact lowrise",
-             "Open highrise",
-             "Open midrise",
-             "Open lowrise",
-             "Lightweight low-rise",
-             "Large lowrise",
-             "Sparsely built",
-             "Heavy Industry",
-             "Dense trees",
-             "Scattered trees",
-             "Bush, scrub",
-             "Low plants",
-             "Bare rock or paved",
-             "Bare soil or sand",
-             "Water"),
-    col = c("#910613",
-            "#D9081C",
-            "#FF0A22",
-            "#C54F1E",
-            "#FF6628",
-            "#FF985E",
-            "#FDED3F",
-            "#BBBBBB",
-            "#FFCBAB",
-            "#565656",
-            "#006A18",
-            "#00A926",
-            "#628432",
-            "#B5DA7F",
-            "#000000",
-            "#FCF7B1",
-            "#656BFA")
+    desc = c(
+      "Compact highrise",
+      "Compact midrise",
+      "Compact lowrise",
+      "Open highrise",
+      "Open midrise",
+      "Open lowrise",
+      "Lightweight low-rise",
+      "Large lowrise",
+      "Sparsely built",
+      "Heavy Industry",
+      "Dense trees",
+      "Scattered trees",
+      "Bush, scrub",
+      "Low plants",
+      "Bare rock or paved",
+      "Bare soil or sand",
+      "Water"
+    ),
+    col = c(
+      "#910613",
+      "#D9081C",
+      "#FF0A22",
+      "#C54F1E",
+      "#FF6628",
+      "#FF985E",
+      "#FDED3F",
+      "#BBBBBB",
+      "#FFCBAB",
+      "#565656",
+      "#006A18",
+      "#00A926",
+      "#628432",
+      "#B5DA7F",
+      "#000000",
+      "#FCF7B1",
+      "#656BFA"
+    )
   ) |>
     as.data.frame()
   lcz_names <- names(at_bufs) |>
@@ -472,5 +518,5 @@ extract_local_climate_zone <- function(pts, lcz, buf_radius = 500) {
   end_time <- Sys.time()
   end_time - start_time
   # return data
-  return(new_pts)
+  new_pts
 }

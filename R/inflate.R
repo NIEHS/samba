@@ -1,12 +1,18 @@
 #' Inflate the prediction grid raster to a spatiotemporal SpatVector
-#' @description Inflate the prediction grid raster to a spatiotemporal SpatVector
+#' @description Inflate the prediction grid raster
+#' to a spatiotemporal SpatVector
 #' with datetime in "time" column
 #' @param s a terra::SpatVector of points (eg: points of a 100km * 100km grid)
 #' @param ts starting time
 #' @param te ending time
-#' @return a spatVector object with a time column and duplicated spatial covariates
+#' @return a spatVector object with a time column
+#' and duplicated spatial covariates
 #' along the time dimension
 #' @importFrom sf st_as_sf
+#' @importFrom lubridate with_tz
+#' @importFrom terra vect
+#' @author Eva Marques
+#' @export
 inflate <- function(s, ts, te) {
   dates <- seq(from = ts, to = te, by = "hour")
   dates <- lubridate::with_tz(dates, tz = "UTC")

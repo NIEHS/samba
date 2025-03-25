@@ -2,10 +2,15 @@
 #' @description Find cells id in a polygon
 #' @param polygon a terra::SpatVector polygon
 #' @importFrom terra ext vect rast values ncell crop project
-#' @importFrom lubridate hours
+#' @importFrom tigris states
 find_cells <- function(polygon) {
   # US 100km * 100km grid
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   terra::values(contig_us_grid) <- 1:terra::ncell(contig_us_grid)
@@ -15,7 +20,12 @@ find_cells <- function(polygon) {
   us_contig <- us_states[which(!(us_states$STUSPS %in% no_contig)), "NAME"] |>
     terra::vect() |>
     terra::project("epsg:4326")
-  contig_us_grid <- terra::crop(contig_us_grid, us_contig, snap = "in", mask = TRUE)
+  contig_us_grid <- terra::crop(
+    contig_us_grid,
+    us_contig,
+    snap = "in",
+    mask = TRUE
+  )
   # polygon projection
   poly <- terra::project(polygon, "epsg:4326")
   # select cells that intersect with the polygon
@@ -31,10 +41,14 @@ find_cells <- function(polygon) {
 #' @return a list of sf objects. The ith element of the list corresponds to the
 #' ith cell id in US 100km resolution grid.
 #' @importFrom terra ext vect rast as.polygons values ncell as.points
-#' @importFrom sf st_as_sf
 create_empty_grids <- function(cells_id) {
   # cut US extent in approx. 100km*100km polygons
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   # enumerate each polygon (1450 in total, 58 col * 25 row)
@@ -77,7 +91,12 @@ create_st_grids_from_cells <- function(cells_id, yyyy, mm, directory) {
     dir.create(dir, recursive = TRUE)
   }
   # cut US extent in approx. 100km*100km polygons
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   # enumerate each polygon (1450 in total, 58 col * 25 row)

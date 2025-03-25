@@ -20,6 +20,8 @@ Coordinates are in EPSG:4326.}
 \item{te}{model end time}
 
 \item{verbose}{logical, print INLA output}
+
+\item{debug}{logical, print INLA debugging info}
 }
 \value{
 a list with the prediction and the model object

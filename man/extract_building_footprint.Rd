@@ -16,3 +16,6 @@ extract_building_footprint(pts, bf, buf_radius = 500)
 \description{
 Extracts building footprint at spatial points
 }
+\author{
+Eva Marques
+}

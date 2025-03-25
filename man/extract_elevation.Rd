@@ -16,3 +16,6 @@ extract_elevation(pts, elev, buf_radius = 500)
 \description{
 Extracts elevation at spatial points
 }
+\author{
+Eva Marques
+}

@@ -1,11 +1,11 @@
-#' Convert an \code{sf} to a \code{SpatRaster}
+#' @title Convert an \code{sf} to a \code{SpatRaster}
 #' @description
 #' Convert an \code{sf} object to a \code{SpatRaster} object. Returns a
 #' \code{SpatRatser} with one layer for each time step in \code{x}.
-#' @param x an `sf` object
-#' @param varname variable to rasterize
-#' @param nx number of cells in the x direction
-#' @param ny number of cells in the y direction
+#' @param x `st::sf`.
+#' @param varname character. Variable to rasterize.
+#' @param nx integer. Number of cells in the x direction.
+#' @param ny integer. Number of cells in the y direction.
 #' @return a `SpatRaster` object
 #' @importFrom stars st_as_stars st_rasterize
 #' @importFrom sf st_bbox
@@ -23,13 +23,27 @@ sf_as_spatraster <- function(x, varname, nx, ny) {
     template = grid
   ) |>
     terra::rast()
-  return(newrast)
+  newrast
 }
 
-
-rasterize_pred <- function(pred,
-                           varname = "pred_mean",
-                           existing_raster = NULL) {
+#' @title Convert prediction data frame to `terra::SpatRaster`
+#' @description
+#' Convert prediction data frame to `terra::SpatRaster`
+#' @param pred data.frame. Output of SAMBA model.
+#' @param varname character. Variable to rasterize
+#' @param nx integer. Number of cells in the x direction
+#' @param ny integer. Number of cells in the y direction
+#' @importFrom lubridate tz
+#' @importFrom sf st_as_sf
+#' @importFrom terra rast time
+#' @return a `SpatRaster` object
+#' @author Eva Marques
+#' @export
+rasterize_pred <- function(
+  pred,
+  varname = "pred_mean",
+  existing_raster = NULL
+) {
   stopifnot("varname missing or mispelled" = varname %in% colnames(pred))
   tz <- lubridate::tz(pred$time)
   nx <- length(unique(as.numeric(sprintf("%.3f", pred$lon))))
@@ -56,9 +70,9 @@ rasterize_pred <- function(pred,
   predictions <- terra::rast(predictions)
   terra::time(predictions) <- setdiff(period, missing)
   if (is.null(existing_raster)) {
-    return(predictions)
+    predictions
   } else {
     terra::add(existing_raster) <- predictions
-    return(existing_raster)
+    existing_raster
   }
 }

@@ -2,12 +2,15 @@
 % Please edit documentation in R/evaluate_pred_vs_pro.R
 \name{map_rmse}
 \alias{map_rmse}
-\title{Calculate and plot RMSE map}
+\title{Calculate and plot RMSE map
+This function calculates the root mean square error (RMSE)
+for each station in the \code{pro} dataset and plots it on a map
+with imperviousness background}
 \usage{
 map_rmse(pro, imp)
 }
 \arguments{
-\item{pro}{The datatable of professional weather stations used as reference}
+\item{pro}{The dataset of professional weather stations used as reference}
 
 \item{imp}{Imperviousness raster}
 }
@@ -15,6 +18,8 @@ map_rmse(pro, imp)
 A ggplot object displaying the RMSE values on a map.
 }
 \description{
+Calculate and plot RMSE map
 This function calculates the root mean square error (RMSE)
-for each station in the \code{pro} dataset and plots it on a map.
+for each station in the \code{pro} dataset and plots it on a map
+with imperviousness background
 }

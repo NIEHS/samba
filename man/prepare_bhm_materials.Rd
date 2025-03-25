@@ -2,10 +2,27 @@
 % Please edit documentation in R/prepare_bhm_materials.R
 \name{prepare_bhm_materials}
 \alias{prepare_bhm_materials}
-\title{Process elevation raster}
+\title{Prepare samba Bayesian Hierarchical model materials.}
 \usage{
 prepare_bhm_materials(input, era5_accum_path, era5_instant_path)
 }
+\arguments{
+\item{input}{list. Contains raw data: \code{cws_raw}, \code{elev}, \code{fch},
+\code{imp}, \code{era5_instant}, \code{era5_accum}, \code{area_shp}}
+
+\item{era5_accum_path}{character. Path to era5 accumulated netcdf to extract
+accurate time information.}
+
+\item{era5_instant_path}{character. Path to era5 accumulated netcdf to
+extract accurate time information.}
+}
+\value{
+a list with samba function materials.
+}
 \description{
-Process elevation raster
+Prepare samba Bayesian Hierarchical model materials from
+input list containing necessary raw data.
+}
+\author{
+Eva Marques
 }

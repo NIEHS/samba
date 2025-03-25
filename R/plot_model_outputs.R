@@ -1,19 +1,23 @@
-#' @title Plot model outputs
-#' @description Plot model prediction mean
-#' @param pred a data.frame with prediction mean, lat, lon, time
-#' @param borders a terra::SpatVector with territory borders
-#' @param tz timezone character
+#' @title Plot maps of the Bayesian model prediction mean
+#' @description Plot map of the Bayesian model prediction mean
+#' @param pred data.frame. Contains `pred_mean`, `lat`, `lon`, `time` columns.
+#' @param borders `terra::SpatVector`. Borders used as a landmark on the map.
+#' @param tz character. Timezone to write on the map.
 #' @import ggplot2
-#' @import sf
+#' @importFrom sf st_as_sf
 #' @importFrom ggspatial annotation_scale annotation_north_arrow coord_sf
 #' @importFrom tidyterra geom_spatraster geom_spatvector
 #' @importFrom lubridate with_tz
 #' @return a list of ggplot2 objects
+#' @author Eva Marques
+#' @export
 map_pred_mean <- function(pred, borders, tz = "America/New_York") {
-  stopifnot("lon missing" = "lon" %in% colnames(pred),
-            "lat missing" = "lat" %in% colnames(pred),
-            "time missing" = "time" %in% colnames(pred),
-            "pred_mean missing" = "pred_mean" %in% colnames(pred))
+  stopifnot(
+    "lon missing" = "lon" %in% colnames(pred),
+    "lat missing" = "lat" %in% colnames(pred),
+    "time missing" = "time" %in% colnames(pred),
+    "pred_mean missing" = "pred_mean" %in% colnames(pred)
+  )
   pred$time <- lubridate::with_tz(pred$time, tz = tz)
   period <- seq(min(pred$time), max(pred$time), by = "1 hour")
   tn <- floor(min(pred$pred_mean, na.rm = TRUE))
@@ -29,24 +33,30 @@ map_pred_mean <- function(pred, borders, tz = "America/New_York") {
       sf_as_spatraster("pred_mean", nx = nx, ny = ny)
     plots[[which(period == p)]] <- ggplot2::ggplot() +
       tidyterra::geom_spatraster(data = pred_plot) +
-      tidyterra::geom_spatvector(data = borders,
-                                 fill = "transparent",
-                                 color = "black",
-                                 linewidth = .1) +
+      tidyterra::geom_spatvector(
+        data = borders,
+        fill = "transparent",
+        color = "black",
+        linewidth = .1
+      ) +
       ggplot2::scale_fill_gradientn(
-        colours = c("#F7F7F7",
-                    "#FDDBC7",
-                    "#F4A582",
-                    "#D6604D",
-                    "#B2182B",
-                    "#67001F"),
+        colours = c(
+          "#F7F7F7",
+          "#FDDBC7",
+          "#F4A582",
+          "#D6604D",
+          "#B2182B",
+          "#67001F"
+        ),
         limits = c(tn, tx),
         breaks = seq(tn, tx, by = 1)
       ) +
-      ggplot2::ggtitle(strftime(p, format = "%Y-%m-%d %H:%M:%S EDT")) +
-      ggspatial::coord_sf(xlim = c(min(pred$lon), max(pred$lon) - 0.01),
-                          ylim = c(min(pred$lat) + 0.01, max(pred$lat)),
-                          expand = FALSE) +
+      ggplot2::ggtitle(strftime(p, format = "%Y-%m-%d %H:%M:%S", tz = tz)) +
+      ggspatial::coord_sf(
+        xlim = c(min(pred$lon), max(pred$lon) - 0.01),
+        ylim = c(min(pred$lat) + 0.01, max(pred$lat)),
+        expand = FALSE
+      ) +
       ggspatial::annotation_scale(
         location = "bl", pad_x = ggplot2::unit(1, "cm"),
         pad_y = ggplot2::unit(1, "cm"),
@@ -68,5 +78,5 @@ map_pred_mean <- function(pred, borders, tz = "America/New_York") {
         panel.grid.major = ggplot2::element_line(colour = "grey")
       )
   }
-  return(plots)
+  plots
 }

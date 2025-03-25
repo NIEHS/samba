@@ -1,7 +1,25 @@
+#' Load palettes
+#' @description Load useful homemade palettes for plots
+#' @param name character
+#' @return list of colors
+#' @importFrom fields tim.colors
+#' @importFrom RColorBrewer brewer.pal
+#' @author Eva Marques
+#' @export
 load_palette <- function(name) {
   stopifnot(
-    "name should be one of \"covariates\", \"lcz\", \"nlcd\", \"temp\", \"temp_ipcc\", \"sw\", \"res\", \"reds\", \"prior\", \"model\", or \"uhi\"" =
-      name %in% c("covariates", "lcz", "nlcd", "temp", "temp_ipcc", "sw", "res", "reds", "prior", "model", "uhi")
+    "Incorrect palette name" = name %in% c(
+      "covariates",
+      "lcz",
+      "nlcd",
+      "temp",
+      "temp_ipcc",
+      "sw",
+      "res",
+      "reds",
+      "prior",
+      "uhi"
+    )
   )
   if (name == "temp") {
     return(fields::tim.colors(n = 64, alpha = 1.0))
@@ -32,9 +50,6 @@ load_palette <- function(name) {
     return(RColorBrewer::brewer.pal(10, "RdBu"))
   } else if (name == "uhi") {
     return(c("cadetblue3", "cornsilk", "yellow", "orange", "red", "firebrick"))
-  } else if (name == "model") {
-    #return(c("car" = "#BF47FF", "cws" = "#4787FF", "joint" = "#FF6347"))
-    return(c("car" = "red", "cws" = "orange", "joint" = "#4787FF"))
   } else if (name == "lcz") {
     lcz <- rbind(
       c(1, "1", "#910613", "1-compact high-rise"),
@@ -53,39 +68,95 @@ load_palette <- function(name) {
       c(14, "D", "#B5DA7F", "D-low plants"),
       c(15, "E", "#000000", "E-bare rock or paved"),
       c(16, "F", "#FCF7B1", "F-bare soil or sand"),
-      c(17, "G", "#656BFA", "G-water")) |>
+      c(17, "G", "#656BFA", "G-water")
+    ) |>
       as.data.frame()
     colnames(lcz) <- c("num", "class", "col", "meaning")
     return(lcz)
   } else if (name == "nlcd") {
     nlcd <- data.frame(
-      class = c("water", "water", "developed", "developed",
-       "developed", "developed", "barren", "forest", "forest",
-        "forest", "shrubland", "herbaceous", "planted",
-         "planted", "wetlands", "wetlands"),
-      code = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 52,
-       71, 81, 82, 90, 95),
-      description = c("Open Water", "Perennial Ice/Snow",
-       "Developed, Open Space", "Developed, Low Intensity",
-       "Developed, Medium Intensity", "Developed, High Intensity",
-        "Barren Land", "Deciduous Forest",
-         "Evergreen Forest", "Mixed Forest", "Shrub/Scrub",
-          "Herbaceous", "Hay/Pasture", "Cultivated Crops",
-           "Woody Wetlands", "Emergent Herbaceous Wetlands"),
-      color = c("#476BA0", "#D1DDF9", "#DDC9C9", "#D89382", 
-      "#ED0000", "#AA0000", "#B2ADA3", "#68AA63", "#1C6330",
-       "#B5C98E", "#CCBA7C", "#E2E2C1", "#DBD83D", "#AA7028",
-        "#BAD8EA", "#70A3BA")
+      class = c(
+        "water",
+        "water",
+        "developed",
+        "developed",
+        "developed",
+        "developed",
+        "barren",
+        "forest",
+        "forest",
+        "forest",
+        "shrubland",
+        "herbaceous",
+        "planted",
+        "planted",
+        "wetlands",
+        "wetlands"
+      ),
+      code = c(
+        11,
+        12,
+        21,
+        22,
+        23,
+        24,
+        31,
+        41,
+        42,
+        43,
+        52,
+        71,
+        81,
+        82,
+        90,
+        95
+      ),
+      description = c(
+        "Open Water",
+        "Perennial Ice/Snow",
+        "Developed, Open Space",
+        "Developed, Low Intensity",
+        "Developed, Medium Intensity",
+        "Developed, High Intensity",
+        "Barren Land",
+        "Deciduous Forest",
+        "Evergreen Forest",
+        "Mixed Forest",
+        "Shrub/Scrub",
+        "Herbaceous",
+        "Hay/Pasture",
+        "Cultivated Crops",
+        "Woody Wetlands",
+        "Emergent Herbaceous Wetlands"
+      ),
+      color = c(
+        "#476BA0",
+        "#D1DDF9",
+        "#DDC9C9",
+        "#D89382",
+        "#ED0000",
+        "#AA0000",
+        "#B2ADA3",
+        "#68AA63",
+        "#1C6330",
+        "#B5C98E",
+        "#CCBA7C",
+        "#E2E2C1",
+        "#DBD83D",
+        "#AA7028",
+        "#BAD8EA",
+        "#70A3BA"
+      )
     )
     return(nlcd)
   } else if (name == "covariates") {
     covariates <- c(
-        "elev" = "blue",
-        "imp" = "red",
-        "fch" = "green",
-        "bf" = "purple",
-        "tcc" = "orange"
-      )
-      return(covariates)
+      "elev" = "blue",
+      "imp" = "red",
+      "fch" = "green",
+      "bf" = "purple",
+      "tcc" = "orange"
+    )
+    return(covariates)
   }
 }

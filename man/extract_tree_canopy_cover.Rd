@@ -16,3 +16,6 @@ extract_tree_canopy_cover(pts, tcc, buf_radius = 500)
 \description{
 Extracts tree canopy cover at spatial points
 }
+\author{
+Eva Marques
+}

@@ -7,13 +7,13 @@
 sf_as_spatraster(x, varname, nx, ny)
 }
 \arguments{
-\item{x}{an \code{sf} object}
+\item{x}{\code{st::sf}.}
 
-\item{varname}{variable to rasterize}
+\item{varname}{character. Variable to rasterize.}
 
-\item{nx}{number of cells in the x direction}
+\item{nx}{integer. Number of cells in the x direction.}
 
-\item{ny}{number of cells in the y direction}
+\item{ny}{integer. Number of cells in the y direction.}
 }
 \value{
 a \code{SpatRaster} object

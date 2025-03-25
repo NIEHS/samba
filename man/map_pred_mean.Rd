@@ -2,20 +2,23 @@
 % Please edit documentation in R/plot_model_outputs.R
 \name{map_pred_mean}
 \alias{map_pred_mean}
-\title{Plot model outputs}
+\title{Plot maps of the Bayesian model prediction mean}
 \usage{
 map_pred_mean(pred, borders, tz = "America/New_York")
 }
 \arguments{
-\item{pred}{a data.frame with prediction mean, lat, lon, time}
+\item{pred}{data.frame. Contains \code{pred_mean}, \code{lat}, \code{lon}, \code{time} columns.}
 
-\item{borders}{a terra::SpatVector with territory borders}
+\item{borders}{\code{terra::SpatVector}. Borders used as a landmark on the map.}
 
-\item{tz}{timezone character}
+\item{tz}{character. Timezone to write on the map.}
 }
 \value{
 a list of ggplot2 objects
 }
 \description{
-Plot model prediction mean
+Plot map of the Bayesian model prediction mean
+}
+\author{
+Eva Marques
 }

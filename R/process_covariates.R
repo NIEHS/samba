@@ -20,7 +20,7 @@ process_elev <- function(elev, polygon) {
   # minimum value of a cell and its 8 surrounding cells. It is a discrete value
   # so it is not added here.
   elev$flowdir <- terra::terrain(elev$dem, "flowdir")
-  return(elev)
+  elev
 }
 
 #' Process imperviousness raster
@@ -37,7 +37,7 @@ process_imp <- function(imp, polygon) {
   }
   imp <- terra::crop(imp, polygon, mask = TRUE)
   imp[imp$Layer_1 == 127] <- NA
-  return(imp)
+  imp
 }
 
 #' Process building footprint raster
@@ -54,7 +54,7 @@ process_bf <- function(bf, polygon) {
   }
   bf <- terra::crop(bf, polygon, mask = TRUE)
   bf[bf$Layer_1 > 900] <- NA
-  return(bf)
+  bf
 }
 
 #' Process tree canopy cover raster
@@ -72,7 +72,7 @@ process_tcc <- function(tcc, polygon) {
   tcc <- terra::crop(tcc, polygon, mask = TRUE)
   tcc[tcc$Layer_1 == 0] <- NA
   tcc[tcc$Layer_1 >  100] <- NA
-  return(tcc)
+  tcc
 }
 
 #' Process local climate zone raster
@@ -89,7 +89,7 @@ process_lcz <- function(lcz, polygon) {
   }
   lcz <- terra::crop(lcz, polygon, mask = TRUE)
   lcz[lcz$lcz_conus_demuzere_2020 == 0] <- NA
-  return(lcz)
+  lcz
 }
 
 #' Process forest canopy height raster
@@ -110,23 +110,5 @@ process_fch <- function(fch, polygon) {
   # fch 102: snow/ice
   # fch 103: no data
   fch[fch$Layer_1 > 100] <- NA
-  return(fch)
-}
-
-
-#' Process evapotranspiration raster
-#' @description Process evapotranspiration raster: select extent,
-#' and set NA values
-#' @param modis_et RasterLayer: modis raster with evapotranspiration layer
-#' @param polygon SpatVector polygon to crop raster
-#' @return RasterLayer: processed evapotranspiration raster
-#' @importFrom terra crop
-process_et <- function(modis_et, polygon) {
-  # check if crs are the same and update polygon's crs if not
-  if (!terra::same.crs(modis_et, polygon)) {
-    polygon <- terra::project(polygon, modis_et)
-  }
-  et <- terra::crop(modis_et[[1]], polygon, mask = TRUE)
-  et[et > 3000] <- 0 # set waterbodies and impervious surfaces to 0
-  return(et)
+  fch
 }
