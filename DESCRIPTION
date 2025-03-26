@@ -18,7 +18,9 @@ Imports:
     fields,
     ggplot2,
     ggspatial,
+    grDevices,
     INLA,
+    latex2exp,
     lubridate,
     lutz,
     methods,
@@ -27,11 +29,13 @@ Imports:
     rnaturalearth,
     sf,
     stars,
+    stats,
     terra (>= 1.8.29),
     tidyr,
     tidyselect,
     tidyterra,
-    tigris
+    tigris,
+    utils
 Suggests:
     covr,
     testthat (>= 3.0.0)
