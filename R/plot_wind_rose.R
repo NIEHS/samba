@@ -132,7 +132,6 @@ plot_windrose <- function(
 
   # deal with change in ordering introduced somewhere around version 2.2
   if (utils::packageVersion("ggplot2") > "2.2") {
-    cat("Hadley broke my code\n")
     data$spd_binned <- with(
       data,
       factor(spd_binned, levels = rev(levels(spd_binned)))

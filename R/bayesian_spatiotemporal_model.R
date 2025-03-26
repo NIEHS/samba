@@ -34,7 +34,7 @@ inference <- function(
     "lon missing" = "lon" %in% colnames(data),
     "lat missing" = "lat" %in% colnames(data),
     "time missing" = "time" %in% colnames(data),
-    "temp missing" = "temp" %in% colnames(data),
+    "temp missing" = "temp" %in% colnames(data)
   )
   # check that polygon is a SpatVector
   stopifnot(
@@ -69,10 +69,6 @@ inference <- function(
     terra::project("epsg:4326") |>
     as.data.frame(geom = "xy") |>
     dplyr::rename(lon = "x", lat = "y")
-
-  cat("Number of data points: ", nrow(data), "\n")
-  cat("Number of prediction points: ", nrow(pred), "\n")
-
   info$mesh_max_edge <- 0.1
   info$mesh_cutoff <- 0.005
   # spatial mesh
@@ -136,7 +132,7 @@ inference <- function(
   # --> s.repl: vector of 1s with length given by the number of mesh vertices
   #             times the number of times (m*nrow(timedim)).
   s_idx <- INLA::inla.spde.make.index("s", n.spde = m, n.group = nrow(timedim))
-
+  message("spatial and temporal mesh created\n")
   # data wrapper
   stk_data <- INLA::inla.stack(
     tag = "data",
@@ -185,7 +181,7 @@ inference <- function(
     )
   )
   stk_full <- INLA::inla.stack(stk_data, stk_pred)
-
+  message("data stacked\n")
   # rho = correlation with p(rho>0.5)=0.7 (prior for ar1)
   # and p(rho > 0.6) = 0.9
   info$pccor1_thresh <- 0.6
@@ -214,6 +210,7 @@ inference <- function(
       )
     )
   )
+  message("inference begins...\n")
   # model inference
   formula <- y ~ -1 + int + local_hour:elev + local_hour:fch + local_hour:imp +
     era5_t2m + era5_rh + era5_tp + era5_u10 + era5_v10 + era5_tcc +
@@ -408,7 +405,7 @@ inference <- function(
     verbose = verbose,
     debug = debug
   )
-  cat("mod model done...")
+  message("first round terminated...\n")
   mod <- INLA::inla(
     formula = formula,
     data = INLA::inla.stack.data(stk_full),
@@ -585,6 +582,7 @@ inference <- function(
     verbose = verbose,
     debug = debug
   )
+  message("...inference terminated!\n")
   index <- INLA::inla.stack.index(stk_full, tag = "pred")$data
   pred$pred_mean <- mod$summary.fitted.values[index, "mean"]
   pred$pred_ll <- mod$summary.fitted.values[index, "0.025quant"]
