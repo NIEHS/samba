@@ -2,16 +2,38 @@
 % Please edit documentation in R/extract_covariates.R
 \name{extract_era5}
 \alias{extract_era5}
-\title{Extracts era5 at spatiotemporal points}
+\title{Extracts era5 covariates}
 \usage{
-extract_era5(pts, era5)
+extract_era5(
+  pts_st,
+  era5_accum,
+  era5_instant,
+  era5_accum_path,
+  era5_instant_path,
+  ts,
+  te
+)
 }
 \arguments{
-\item{pts}{a SpatVector with "time" column (spatiotemporal points).
-Should be a 100km*100km hourly grid with 1km resolution}
+\item{pts_st}{a SpatVector or sf (should be spatiotemporal)}
 
-\item{era5}{a SpatRaster with era5 data. Layers correspond to time (hours).}
+\item{era5_accum}{a SpatRaster with era5 accumulated covariates}
+
+\item{era5_instant}{a SpatRaster with era5 instantaneous covariates}
+
+\item{era5_accum_path}{character path to era5_accum netcdf to extract
+some correct timestamps}
+
+\item{era5_instant_path}{character path to era5_instant netcdf to extract
+some correct timestamps}
+
+\item{ts}{POSIXct of the start timestamp}
+
+\item{te}{POSIXct of the end timestamp}
 }
 \description{
-Extracts era5 at spatiotemporal points
+Extracts era5 covariates at spatial points
+}
+\author{
+Eva Marques
 }

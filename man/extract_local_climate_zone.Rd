@@ -16,3 +16,6 @@ extract_local_climate_zone(pts, lcz, buf_radius = 500)
 \description{
 Extracts local climate zone at spatial points
 }
+\author{
+Eva Marques
+}

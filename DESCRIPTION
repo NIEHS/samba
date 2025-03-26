@@ -1,5 +1,5 @@
-Package: barbara
-Title: barbara
+Package: samba
+Title: samba
 Version: 1.0.0
 Authors@R: c(
     person("Eva", "Marques", , "eva.marques@nih.gov", role = c("aut", "cre")),
@@ -12,21 +12,36 @@ URL: https://github.com/NIEHS/barbara
 Depends: 
     R (>= 4.1.0)
 Imports:
-    ecmwfr,
+    data.table,
+    dplyr,
     exactextractr,
+    fields,
     ggplot2,
     ggspatial,
+    grDevices,
+    INLA,
+    latex2exp,
     lubridate,
+    lutz,
     methods,
+    ncdf4,
+    RColorBrewer,
+    rnaturalearth,
     sf,
     stars,
-    terra,
-    tidyterra
-Suggests: 
+    stats,
+    terra (>= 1.8.29),
+    tidyr,
+    tidyselect,
+    tidyterra,
+    tigris,
+    utils
+Suggests:
     covr,
     testthat (>= 3.0.0)
+Additional_repositories: https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

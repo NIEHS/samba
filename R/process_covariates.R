@@ -10,7 +10,7 @@ process_elev <- function(elev, polygon) {
   if (!terra::same.crs(elev, polygon)) {
     polygon <- terra::project(polygon, elev)
   }
-  elev <- terra::crop(elev, polygon)
+  elev <- terra::crop(elev, polygon, mask = TRUE)
   names(elev) <- "dem"
   elev$slope <- terra::terrain(elev$dem, "slope")
   # aspect is in degrees, clockwise from North
@@ -20,7 +20,7 @@ process_elev <- function(elev, polygon) {
   # minimum value of a cell and its 8 surrounding cells. It is a discrete value
   # so it is not added here.
   elev$flowdir <- terra::terrain(elev$dem, "flowdir")
-  return(elev)
+  elev
 }
 
 #' Process imperviousness raster
@@ -35,9 +35,9 @@ process_imp <- function(imp, polygon) {
   if (!terra::same.crs(imp, polygon)) {
     polygon <- terra::project(polygon, imp)
   }
-  imp <- terra::crop(imp, polygon)
+  imp <- terra::crop(imp, polygon, mask = TRUE)
   imp[imp$Layer_1 == 127] <- NA
-  return(imp)
+  imp
 }
 
 #' Process building footprint raster
@@ -52,9 +52,9 @@ process_bf <- function(bf, polygon) {
   if (!terra::same.crs(bf, polygon)) {
     polygon <- terra::project(polygon, bf)
   }
-  bf <- terra::crop(bf, polygon)
+  bf <- terra::crop(bf, polygon, mask = TRUE)
   bf[bf$Layer_1 > 900] <- NA
-  return(bf)
+  bf
 }
 
 #' Process tree canopy cover raster
@@ -69,10 +69,10 @@ process_tcc <- function(tcc, polygon) {
   if (!terra::same.crs(tcc, polygon)) {
     polygon <- terra::project(polygon, tcc)
   }
-  tcc <- terra::crop(tcc, polygon)
+  tcc <- terra::crop(tcc, polygon, mask = TRUE)
   tcc[tcc$Layer_1 == 0] <- NA
   tcc[tcc$Layer_1 >  100] <- NA
-  return(tcc)
+  tcc
 }
 
 #' Process local climate zone raster
@@ -87,9 +87,9 @@ process_lcz <- function(lcz, polygon) {
   if (!terra::same.crs(lcz, polygon)) {
     polygon <- terra::project(polygon, lcz)
   }
-  lcz <- terra::crop(lcz, polygon)
+  lcz <- terra::crop(lcz, polygon, mask = TRUE)
   lcz[lcz$lcz_conus_demuzere_2020 == 0] <- NA
-  return(lcz)
+  lcz
 }
 
 #' Process forest canopy height raster
@@ -104,11 +104,11 @@ process_fch <- function(fch, polygon) {
   if (!terra::same.crs(fch, polygon)) {
     polygon <- terra::project(polygon, fch)
   }
-  fch <- terra::crop(fch, polygon)
+  fch <- terra::crop(fch, polygon, mask = TRUE)
   # fch is in meters, values from 0-60m
   # fch 101: water
   # fch 102: snow/ice
   # fch 103: no data
   fch[fch$Layer_1 > 100] <- NA
-  return(fch)
+  fch
 }

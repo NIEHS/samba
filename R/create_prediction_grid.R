@@ -1,21 +1,38 @@
 #' Find cells id in a polygon
 #' @description Find cells id in a polygon
 #' @param polygon a terra::SpatVector polygon
+#' @return a vector of cells id
 #' @importFrom terra ext vect rast values ncell crop project
-#' @importFrom lubridate hours
+#' @importFrom tigris states
 find_cells <- function(polygon) {
   # US 100km * 100km grid
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   terra::values(contig_us_grid) <- 1:terra::ncell(contig_us_grid)
   names(contig_us_grid) <- "id"
+  us_states <- tigris::states()
+  no_contig <- c("VI", "MP", "AK", "PR", "AS", "GU", "HI")
+  us_contig <- us_states[which(!(us_states$STUSPS %in% no_contig)), "NAME"] |>
+    terra::vect() |>
+    terra::project("epsg:4326")
+  contig_us_grid <- terra::crop(
+    contig_us_grid,
+    us_contig,
+    snap = "in",
+    mask = TRUE
+  )
   # polygon projection
   poly <- terra::project(polygon, "epsg:4326")
   # select cells that intersect with the polygon
   cropped <- terra::crop(contig_us_grid, poly, mask = TRUE, snap = "out")
   cell_ids <- terra::values(cropped, na.rm = TRUE)
-  return(as.vector(cell_ids))
+  as.vector(cell_ids)
 }
 
 #' Create 100km*100km grids inside US cells provided by their id
@@ -25,10 +42,14 @@ find_cells <- function(polygon) {
 #' @return a list of sf objects. The ith element of the list corresponds to the
 #' ith cell id in US 100km resolution grid.
 #' @importFrom terra ext vect rast as.polygons values ncell as.points
-#' @importFrom sf st_as_sf
 create_empty_grids <- function(cells_id) {
   # cut US extent in approx. 100km*100km polygons
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   # enumerate each polygon (1450 in total, 58 col * 25 row)
@@ -46,7 +67,7 @@ create_empty_grids <- function(cells_id) {
       terra::rast(res = 0.01) |>
       terra::as.points()
   }
-  return(cells)
+  cells
 }
 
 #' Create monthly 100km*100km grids inside US cells
@@ -71,7 +92,12 @@ create_st_grids_from_cells <- function(cells_id, yyyy, mm, directory) {
     dir.create(dir, recursive = TRUE)
   }
   # cut US extent in approx. 100km*100km polygons
-  contig_us_grid <- terra::ext(-124.736342, -66.945392, 24.521208, 49.382808) |>
+  contig_us_grid <- terra::ext(
+    -124.736342,
+    -66.945392,
+    24.521208,
+    49.382808
+  ) |>
     terra::vect(crs = "epsg:4326") |>
     terra::rast(res = 1)
   # enumerate each polygon (1450 in total, 58 col * 25 row)
@@ -102,7 +128,9 @@ create_st_grids_from_cells <- function(cells_id, yyyy, mm, directory) {
     grid_i <- cells[rep(seq_len(nrow(cells)), times = length(dates)), ]
     grid_i$time <- rep(dates, each = nrow(cells))
     #   - save the grid in a subdirectory directory/yyyymm/grid_i.rds
-    saveRDS(grid_i,
-            file = paste0(dir, "grid_", i, ".rds"))
+    saveRDS(
+      grid_i,
+      file = paste0(dir, "grid_", i, ".rds")
+    )
   }
 }

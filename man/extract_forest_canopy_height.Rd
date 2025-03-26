@@ -16,3 +16,6 @@ extract_forest_canopy_height(pts, fch, buf_radius = 500)
 \description{
 Extracts forest canopy height at spatial points
 }
+\author{
+Eva Marques
+}
