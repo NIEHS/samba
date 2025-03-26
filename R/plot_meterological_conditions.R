@@ -18,11 +18,11 @@ mytile <- function(df, fill) {
     )
   ) +
     ggplot2::geom_tile() +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 6, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 12, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 18, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 24, linetype = "dashed", size = 0.2) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 6, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 12, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 18, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 24, linetype = "dashed", linewidth = 0.2) +
     ggplot2::scale_x_continuous(
       breaks = c(0, 6, 12, 18, 24),
       labels = as.character(c(0, 6, 12, 18, 24))
@@ -53,10 +53,9 @@ mytile <- function(df, fill) {
         color = "grey",
         linewidth = 0.2
       ),
-      legend.text = ggplot2::element_text(size = 16),
+      legend.text = ggplot2::element_text(hjust = 0, size = 16),
       plot.caption = ggplot2::element_text(size = 14),
       legend.title = ggplot2::element_text(size = 18),
-      legend.text.align = 0,
       legend.box.spacing = ggplot2::unit(0, "pt")
     )
   plot
@@ -81,11 +80,11 @@ mytile_rain <- function(df) {
     )
   ) +
     ggplot2::geom_tile() +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 6, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 12, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 18, linetype = "dashed", size = 0.2) +
-    ggplot2::geom_vline(xintercept = 24, linetype = "dashed", size = 0.2) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 6, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 12, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 18, linetype = "dashed", linewidth = 0.2) +
+    ggplot2::geom_vline(xintercept = 24, linetype = "dashed", linewidth = 0.2) +
     ggplot2::scale_x_continuous(
       breaks = c(0, 6, 12, 18, 24),
       labels = as.character(c(0, 6, 12, 18, 24))
@@ -113,10 +112,9 @@ mytile_rain <- function(df) {
       axis.title.y = ggplot2::element_text(size = 22),
       legend.key.width = ggplot2::unit(1, "cm"),
       panel.grid.major = ggplot2::element_line(color = "grey", linewidth = 0.2),
-      legend.text = ggplot2::element_text(size = 16),
+      legend.text = ggplot2::element_text(hjust = 0, size = 16),
       plot.caption = ggplot2::element_text(size = 14),
       legend.title = ggplot2::element_text(size = 18),
-      legend.text.align = 0,
       legend.box.spacing = ggplot2::unit(0, "pt")
     )
   plot
