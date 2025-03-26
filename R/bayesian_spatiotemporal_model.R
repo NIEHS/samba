@@ -14,6 +14,7 @@
 #' @import INLA
 #' @importFrom terra ext as.polygons buffer crs vect project intersect
 #' as.points geom
+#' @importFrom stats runif var
 #' @importFrom lubridate with_tz hour
 #' @importFrom lutz tz_lookup_coords
 #' @importFrom dplyr between rename
@@ -195,9 +196,9 @@ inference <- function(
   info$s2x_data_prior <- 1.9
 
   est_loggamma_param <- function(a, b) {
-    s <- runif(n = 50000, min = a, max = b)
+    s <- stats::runif(n = 50000, min = a, max = b)
     prec <- 1 / s**2
-    a2 <- mean(prec)**2 / var(prec)
+    a2 <- mean(prec)**2 / stats::var(prec)
     b2 <- a2 / mean(prec)
     list(a2 = a2, b2 = b2)
   }

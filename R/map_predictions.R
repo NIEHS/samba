@@ -51,7 +51,7 @@ map_uhi_obs <- function(pred_stat, obs, borders, time) {
       breaks = seq(tn, tx, 1),
       limits = c(tn, tx)
     ) +
-    ggplot2::labs(fill = "T (°C)") +
+    ggplot2::labs(fill = "T (C)") +
     ggplot2::ggtitle(strftime(time, format = "%Y-%m-%d %H:%M:%S EDT")) +
     ggplot2::scale_shape_manual("", values = shape, labels = labels) +
     ggplot2::guides(

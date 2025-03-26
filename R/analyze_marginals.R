@@ -4,6 +4,8 @@
 #' @param info the dataframe from BHM output with inference informations
 #' @return a ggplot object
 #' @import ggplot2
+#' @importFrom latex2exp TeX
+#' @importFrom stats dnorm
 #' @author Eva Marques
 #' @export
 density_beta_covar <- function(info) {
@@ -18,7 +20,7 @@ density_beta_covar <- function(info) {
   )
   p <- ggplot2::ggplot(data = data.frame(x = c(-5, 5)), ggplot2::aes(x)) +
     ggplot2::stat_function(
-      fun = dnorm, n = 100,
+      fun = stats::dnorm, n = 100,
       args = list(
         mean = info$dem_mean,
         sd = info$dem_sd
@@ -26,7 +28,7 @@ density_beta_covar <- function(info) {
       linewidth = 1, ggplot2::aes(color = "dem", linetype = "post")
     ) +
     ggplot2::stat_function(
-      fun = dnorm, n = 100,
+      fun = stats::dnorm, n = 100,
       args = list(
         mean = info$build_d_mean,
         sd = info$build_d_sd
@@ -34,7 +36,7 @@ density_beta_covar <- function(info) {
       linewidth = 1, ggplot2::aes(color = "building density", linetype = "post")
     ) +
     ggplot2::stat_function(
-      fun = dnorm, n = 100,
+      fun = stats::dnorm, n = 100,
       args = list(
         mean = info$build_h_mean,
         sd = info$build_d_sd
@@ -42,7 +44,7 @@ density_beta_covar <- function(info) {
       linewidth = 1, ggplot2::aes(color = "building height", linetype = "post")
     ) +
     ggplot2::stat_function(
-      fun = dnorm, n = 100,
+      fun = stats::dnorm, n = 100,
       args = list(
         mean = info$mu_covar,
         sd = sqrt(1 / info$prec_covar)

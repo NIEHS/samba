@@ -32,6 +32,9 @@ plot_windrose(
 
 \item{spdmax}{integer. Maximum of wind speed.}
 
+\item{spdseq}{vector. Scale sequence for wind speed
+(missing, uses spdmin, spdmax and spdres)}
+
 \item{palette}{character. Palette for the wind speed.}
 
 \item{countmax}{integer. y-axis adjustments.}
@@ -43,5 +46,5 @@ a ggplot2 of the form of a wind rose
 Plot wind rose.
 }
 \references{
-Code from \link{https://stackoverflow.com/questions/17266780/wind-rose-with-ggplot-r}
+Code from https://stackoverflow.com/questions/17266780/wind-rose-with-ggplot-r
 }

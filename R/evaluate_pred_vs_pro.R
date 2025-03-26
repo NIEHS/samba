@@ -106,6 +106,7 @@ timeseries_res <- function(pro) {
 #' @return A ggplot object displaying the RMSE values on a map.
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @import ggplot2
+#' @importFrom data.table .SD
 #' @export
 map_rmse <- function(pro, imp) {
   rmse <- lat <- lon <- site_id <- NULL
@@ -144,7 +145,7 @@ map_rmse <- function(pro, imp) {
       ),
       na.value = NA
     ) +
-    ggplot2::labs(fill = "imp (%)", color = "RMSE (°C)") +
+    ggplot2::labs(fill = "imp (%)", color = "RMSE (C)") +
     ggplot2::scale_color_stepsn(
       colours = load_palette("reds"),
       na.value = NA
@@ -184,6 +185,7 @@ map_rmse <- function(pro, imp) {
 #' @importFrom terra vect project crs
 #' @importFrom tidyterra geom_spatraster geom_spatvector
 #' @importFrom ggspatial annotation_scale annotation_north_arrow
+#' @importFrom data.table .SD
 #' @export
 map_rmse_nlcd <- function(pro, nlcd) {
   lon <- lat <- rmse <- site_id <-  NULL
@@ -219,7 +221,7 @@ map_rmse_nlcd <- function(pro, nlcd) {
       breaks = load_palette("nlcd")$description,
       na.value = NA
     ) +
-    ggplot2::labs(fill = "NLCD", color = "RMSE (°C)") +
+    ggplot2::labs(fill = "NLCD", color = "RMSE (C)") +
     ggplot2::scale_color_stepsn(
       colours = c("white", "yellow", "orange"),
       na.value = NA
@@ -330,13 +332,14 @@ boxplot_per_hour <- function(pro) {
 #' @import ggplot2
 #' @importFrom sf st_as_sf
 #' @importFrom lubridate hour
+#' @importFrom stats median
 #' @export
 median_bias_per_hour <- function(pro) {
-  hour <- bias <- site_id <- NULL
+  hour <- bias <- site_id <- pred_mean <- temp <- lat <- lon <- . <- NULL
   stopifnot("res is not in colnames(pro)" = "res" %in% colnames(pro))
   # compute median error per station per hour
   bias_station_hour <- pro[,
-    .(bias = median(pred_mean - temp, na.rm = TRUE)), #nolint
+    .(bias = stats::median(pred_mean - temp, na.rm = TRUE)), #nolint
     by = .(site_id, lat, lon, hour = lubridate::hour(time)) #nolint
   ] |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)

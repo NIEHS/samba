@@ -31,8 +31,8 @@ sf_as_spatraster <- function(x, varname, nx, ny) {
 #' Convert prediction data frame to `terra::SpatRaster`
 #' @param pred data.frame. Output of SAMBA model.
 #' @param varname character. Variable to rasterize
-#' @param nx integer. Number of cells in the x direction
-#' @param ny integer. Number of cells in the y direction
+#' @param existing_raster `terra::SpatRaster`. Used as a template for
+#' the layout.
 #' @importFrom lubridate tz
 #' @importFrom sf st_as_sf
 #' @importFrom terra rast time

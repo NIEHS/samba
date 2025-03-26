@@ -11,9 +11,8 @@ rasterize_pred(pred, varname = "pred_mean", existing_raster = NULL)
 
 \item{varname}{character. Variable to rasterize}
 
-\item{nx}{integer. Number of cells in the x direction}
-
-\item{ny}{integer. Number of cells in the y direction}
+\item{existing_raster}{\code{terra::SpatRaster}. Used as a template for
+the layout.}
 }
 \value{
 a \code{SpatRaster} object

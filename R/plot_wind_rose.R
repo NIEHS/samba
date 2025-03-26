@@ -1,4 +1,3 @@
-
 #' @title Plot wind rose.
 #' @description Plot wind rose.
 #' @param data data.frame.
@@ -8,11 +7,19 @@
 #' @param dirres integer. Resolution of wind direction scale.
 #' @param spdmin integer. Minimum of wind speed.
 #' @param spdmax integer. Maximum of wind speed.
+#' @param spdseq vector. Scale sequence for wind speed
+#' (missing, uses spdmin, spdmax and spdres)
 #' @param palette character. Palette for the wind speed.
 #' @param countmax integer. y-axis adjustments.
+#' @importFrom grDevices colorRampPalette
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom latex2exp TeX
+#' @importFrom stats na.omit
+#' @importFrom utils packageVersion
+#' @import ggplot2
 #' @return a ggplot2 of the form of a wind rose
 # nolint start
-#' @references Code from \link{https://stackoverflow.com/questions/17266780/wind-rose-with-ggplot-r}
+#' @references Code from https://stackoverflow.com/questions/17266780/wind-rose-with-ggplot-r
 # nolint end
 plot_windrose <- function(
   data,
@@ -52,7 +59,7 @@ plot_windrose <- function(
   n_colors_in_range <- n_spd_seq - 1
 
   # create the color map
-  spd_colors <- colorRampPalette(RColorBrewer::brewer.pal(
+  spd_colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(
     min(
       max(
         3,
@@ -99,7 +106,7 @@ plot_windrose <- function(
     ordered_result = TRUE
   )
   # clean up the data
-  data <- na.omit(data)
+  data <- photobiology::na.omit(data)
   # figure out the wind direction bins
   dir_breaks <- c(
     -dirres / 2,
@@ -124,7 +131,7 @@ plot_windrose <- function(
   data$dir_binned <- dir_binned
 
   # deal with change in ordering introduced somewhere around version 2.2
-  if (packageVersion("ggplot2") > "2.2") {
+  if (utils::packageVersion("ggplot2") > "2.2") {
     cat("Hadley broke my code\n")
     data$spd_binned <- with(
       data,

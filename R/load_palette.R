@@ -4,6 +4,7 @@
 #' @return list of colors
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom fields tim.colors
+#' @importFrom grDevices rgb
 #' @author Eva Marques
 #' @export
 load_palette <- function(name) {
@@ -37,7 +38,9 @@ load_palette <- function(name) {
       c(33, 102, 172),
       c(5, 48, 97)
     ) |>
-      lapply(function(x) rgb(x[1], x[2], x[3], maxColorValue = 255)) |>
+      lapply(
+        function(x) grDevices::rgb(x[1], x[2], x[3], maxColorValue = 255)
+      ) |>
       rev()
     pal_ipcc
   } else if (name == "sw") {
