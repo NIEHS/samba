@@ -106,7 +106,7 @@ plot_windrose <- function(
     ordered_result = TRUE
   )
   # clean up the data
-  data <- photobiology::na.omit(data)
+  data <- stats::na.omit(data)
   # figure out the wind direction bins
   dir_breaks <- c(
     -dirres / 2,
