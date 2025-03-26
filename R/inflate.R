@@ -23,5 +23,5 @@ inflate <- function(s, ts, te) {
   st$time <- rep(dates, each = n)
   st <- st |>
     terra::vect()
-  return(st)
+  st
 }

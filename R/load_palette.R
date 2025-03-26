@@ -22,7 +22,7 @@ load_palette <- function(name) {
     )
   )
   if (name == "temp") {
-    return(fields::tim.colors(n = 64, alpha = 1.0))
+    fields::tim.colors(n = 64, alpha = 1.0)
   } else if (name == "temp_ipcc") {
     pal_ipcc <- list(
       c(103, 0, 31),
@@ -39,17 +39,17 @@ load_palette <- function(name) {
     ) |>
       lapply(function(x) rgb(x[1], x[2], x[3], maxColorValue = 255)) |>
       rev()
-    return(pal_ipcc)
+    pal_ipcc
   } else if (name == "sw") {
-    return(RColorBrewer::brewer.pal(10, "RdYlBu"))
+    RColorBrewer::brewer.pal(10, "RdYlBu")
   } else if (name == "res") {
-    return(c("dodgerblue4", "white", "firebrick4"))
+    c("dodgerblue4", "white", "firebrick4")
   } else if (name == "reds") {
-    return(c("white", "firebrick4"))
+    c("white", "firebrick4")
   } else if (name == "prior") {
-    return(RColorBrewer::brewer.pal(10, "RdBu"))
+    RColorBrewer::brewer.pal(10, "RdBu")
   } else if (name == "uhi") {
-    return(c("cadetblue3", "cornsilk", "yellow", "orange", "red", "firebrick"))
+    c("cadetblue3", "cornsilk", "yellow", "orange", "red", "firebrick")
   } else if (name == "lcz") {
     lcz <- rbind(
       c(1, "1", "#910613", "1-compact high-rise"),
@@ -72,9 +72,9 @@ load_palette <- function(name) {
     ) |>
       as.data.frame()
     colnames(lcz) <- c("num", "class", "col", "meaning")
-    return(lcz)
+    lcz
   } else if (name == "nlcd") {
-    nlcd <- data.frame(
+    data.frame(
       class = c(
         "water",
         "water",
@@ -148,15 +148,13 @@ load_palette <- function(name) {
         "#70A3BA"
       )
     )
-    return(nlcd)
   } else if (name == "covariates") {
-    covariates <- c(
+    c(
       "elev" = "blue",
       "imp" = "red",
       "fch" = "green",
       "bf" = "purple",
       "tcc" = "orange"
     )
-    return(covariates)
   }
 }

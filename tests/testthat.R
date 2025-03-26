@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(barbara)
+library(samba)
 
-test_check("barbara")
+test_check("samba")

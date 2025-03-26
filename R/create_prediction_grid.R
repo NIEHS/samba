@@ -1,6 +1,7 @@
 #' Find cells id in a polygon
 #' @description Find cells id in a polygon
 #' @param polygon a terra::SpatVector polygon
+#' @return a vector of cells id
 #' @importFrom terra ext vect rast values ncell crop project
 #' @importFrom tigris states
 find_cells <- function(polygon) {
@@ -31,7 +32,7 @@ find_cells <- function(polygon) {
   # select cells that intersect with the polygon
   cropped <- terra::crop(contig_us_grid, poly, mask = TRUE, snap = "out")
   cell_ids <- terra::values(cropped, na.rm = TRUE)
-  return(as.vector(cell_ids))
+  as.vector(cell_ids)
 }
 
 #' Create 100km*100km grids inside US cells provided by their id
@@ -66,7 +67,7 @@ create_empty_grids <- function(cells_id) {
       terra::rast(res = 0.01) |>
       terra::as.points()
   }
-  return(cells)
+  cells
 }
 
 #' Create monthly 100km*100km grids inside US cells
@@ -127,7 +128,9 @@ create_st_grids_from_cells <- function(cells_id, yyyy, mm, directory) {
     grid_i <- cells[rep(seq_len(nrow(cells)), times = length(dates)), ]
     grid_i$time <- rep(dates, each = nrow(cells))
     #   - save the grid in a subdirectory directory/yyyymm/grid_i.rds
-    saveRDS(grid_i,
-            file = paste0(dir, "grid_", i, ".rds"))
+    saveRDS(
+      grid_i,
+      file = paste0(dir, "grid_", i, ".rds")
+    )
   }
 }

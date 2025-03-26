@@ -199,7 +199,7 @@ inference <- function(
     prec <- 1 / s**2
     a2 <- mean(prec)**2 / var(prec)
     b2 <- a2 / mean(prec)
-    return(list(a2 = a2, b2 = b2))
+    list(a2 = a2, b2 = b2)
   }
   prec_param <- est_loggamma_param(info$s2n_data_prior,
                                    info$s2x_data_prior)
@@ -591,6 +591,5 @@ inference <- function(
   pred$pred_sd <- mod$summary.fitted.values[index, "sd"]
   info <- as.data.frame(info)
   info <- store_post_info(mod, info)
-
-  return(list(pred = pred, mod = mod, info = info))
+  list(pred = pred, mod = mod, info = info)
 }

@@ -9,6 +9,9 @@ find_cells(polygon)
 \arguments{
 \item{polygon}{a terra::SpatVector polygon}
 }
+\value{
+a vector of cells id
+}
 \description{
 Find cells id in a polygon
 }
