@@ -95,8 +95,10 @@ inference <- function(
   pred <- merge(pred, timedim, by = "time")
   data$utc <- lubridate::hour(data$time)
   pred$utc <- lubridate::hour(pred$time)
-  data$tz <- lutz::tz_lookup_coords(data$lat, data$lon)
-  pred$tz <- lutz::tz_lookup_coords(pred$lat, pred$lon)
+  data$tz <- lutz::tz_lookup_coords(data$lat, data$lon) |>
+    suppressWarnings()
+  pred$tz <- lutz::tz_lookup_coords(pred$lat, pred$lon) |>
+    suppressWarnings()
   data$local_hour <- lubridate::with_tz(data$time, tz = data$tz) |>
     lubridate::hour()
   pred$local_hour <- lubridate::with_tz(pred$time, tz = pred$tz) |>

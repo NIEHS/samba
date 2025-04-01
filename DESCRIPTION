@@ -20,12 +20,14 @@ Imports:
     ggspatial,
     grDevices,
     INLA,
+    knitr,
     latex2exp,
     lubridate,
     lutz,
     methods,
     ncdf4,
     RColorBrewer,
+    rmarkdown,
     rnaturalearth,
     sf,
     stars,
@@ -39,6 +41,7 @@ Imports:
 Suggests:
     covr,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr, rmarkdown
 Additional_repositories: https://inla.r-inla-download.org/R/stable
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
