@@ -2,8 +2,8 @@
 #' @description Run the whole samba analysis.
 #' @param ts POSIXct. Analysis starting time.
 #' @param te POSIXct. Analysis ending time.
-#' @param area_shp_path character. Area delimitation shapefile path.
-#' @param cws_raw_path character. Path to personal weather stations dataset.
+#' @param area_shp SpatVector. Area delimitation shapefile.
+#' @param cws_raw data.table. Dataset of personal weather stations.
 #' @param fch_path character. Path to forest canopy height raster.
 #' @param elev_path character. Path to elevation raster.
 #' @param imp_path character. Path to imperviousness raster.
@@ -16,8 +16,8 @@
 samba <- function(
   ts,
   te,
-  area_shp_path,
-  cws_raw_path,
+  area_shp,
+  cws_raw,
   fch_path,
   elev_path,
   imp_path,
@@ -26,14 +26,14 @@ samba <- function(
 ) {
   message("...load input...")
   input <- list()
-  input$cws_raw <- readRDS(cws_raw_path)$obs |>
-    terra::vect(crs = "epsg:4326", keepgeom = TRUE)
+  input$cws_raw <- cws_raw |>
+    terra::vect(geom = c("lon", "lat"), crs = "epsg:4326", keepgeom = TRUE)
   input$fch <- terra::rast(fch_path)
   input$elev <- terra::rast(elev_path)
   input$imp <- terra::rast(imp_path)
   input$era5_instant <- terra::rast(era5_instant_path)
   input$era5_accum <- terra::rast(era5_accum_path)
-  input$area_shp <- terra::vect(area_shp_path)
+  input$area_shp <- area_shp
   input$ts <- ts
   input$te <- te
   message("...check input...")
