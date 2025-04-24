@@ -4,6 +4,7 @@
 #' @return a vector of cells id
 #' @importFrom terra ext vect rast values ncell crop project
 #' @importFrom tigris states
+#' @export
 find_cells <- function(polygon) {
   # US 100km * 100km grid
   contig_us_grid <- terra::ext(
@@ -42,6 +43,7 @@ find_cells <- function(polygon) {
 #' @return a list of sf objects. The ith element of the list corresponds to the
 #' ith cell id in US 100km resolution grid.
 #' @importFrom terra ext vect rast as.polygons values ncell as.points
+#' @export
 create_empty_grids <- function(cells_id) {
   # cut US extent in approx. 100km*100km polygons
   contig_us_grid <- terra::ext(
@@ -80,6 +82,7 @@ create_empty_grids <- function(cells_id) {
 #' @importFrom terra ext vect rast as.polygons values ncell
 #' @importFrom lubridate hours
 #' @importFrom sf st_as_sf
+#' @export
 create_st_grids_from_cells <- function(cells_id, yyyy, mm, directory) {
   # add "/" to directory if not present
   chars_dir <- nchar(directory)
