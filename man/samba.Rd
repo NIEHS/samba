@@ -7,8 +7,8 @@
 samba(
   ts,
   te,
-  area_shp_path,
-  cws_raw_path,
+  area_shp,
+  cws_raw,
   fch_path,
   elev_path,
   imp_path,
@@ -21,9 +21,9 @@ samba(
 
 \item{te}{POSIXct. Analysis ending time.}
 
-\item{area_shp_path}{character. Area delimitation shapefile path.}
+\item{area_shp}{SpatVector. Area delimitation shapefile.}
 
-\item{cws_raw_path}{character. Path to personal weather stations dataset.}
+\item{cws_raw}{data.table. Dataset of personal weather stations.}
 
 \item{fch_path}{character. Path to forest canopy height raster.}
 
