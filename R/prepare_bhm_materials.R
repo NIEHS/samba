@@ -96,42 +96,47 @@ prepare_bhm_materials <- function(
     area_rect_p <- terra::project(bhm_materials$area_rect, locs)
     locs <- terra::intersect(locs, area_rect_p)
     locs <- terra::crop(locs, us_borders)
-    # extract covariates
-    locs_spatial <- locs |>
-      extract_elevation(elev = elev) |>
-      extract_imperviousness(imp = imp) |>
-      extract_forest_canopy_height(fch = fch) |>
-      terra::project("epsg:4326") |>
-      inflate(input$ts, input$te)
-    locs_era5 <- extract_era5(
-      locs_spatial,
-      input$era5_accum,
-      input$era5_instant,
-      era5_accum_path,
-      era5_instant_path,
-      ts = input$ts,
-      te = input$te
-    )
-    locs_covar <- merge(
-      as.data.frame(locs_spatial, geom = "wkt"),
-      as.data.frame(locs_era5, geom = "wkt"),
-      by = c("time", "geometry")
-    )
-    locs_covar$geometry <- sf::st_as_sfc(locs_covar$geometry)
-    locs_covar <- sf::st_as_sf(locs_covar)
-    locs_covar$lon <- sf::st_coordinates(locs_covar)[, 1]
-    locs_covar$lat <- sf::st_coordinates(locs_covar)[, 2]
-    sf::st_crs(locs_covar) <- 4326
-    local_tz <- lutz::tz_lookup_coords(
-      locs_covar$lat,
-      locs_covar$lon
-    )
-    locs_covar$local_hour <- lubridate::with_tz(
-      locs_covar$time,
-      tz = local_tz
-    ) |>
-      lubridate::hour()
-    pred_list[[i]] <- locs_covar
+    if (nrow(locs) == 0) {
+      pred_list[[i]] <- NULL
+      next()
+    } else {
+      # extract covariates
+      locs_spatial <- locs |>
+        extract_elevation(elev = elev) |>
+        extract_imperviousness(imp = imp) |>
+        extract_forest_canopy_height(fch = fch) |>
+        terra::project("epsg:4326") |>
+        inflate(input$ts, input$te)
+      locs_era5 <- extract_era5(
+        locs_spatial,
+        input$era5_accum,
+        input$era5_instant,
+        era5_accum_path,
+        era5_instant_path,
+        ts = input$ts,
+        te = input$te
+      )
+      locs_covar <- merge(
+        as.data.frame(locs_spatial, geom = "wkt"),
+        as.data.frame(locs_era5, geom = "wkt"),
+        by = c("time", "geometry")
+      )
+      locs_covar$geometry <- sf::st_as_sfc(locs_covar$geometry)
+      locs_covar <- sf::st_as_sf(locs_covar)
+      locs_covar$lon <- sf::st_coordinates(locs_covar)[, 1]
+      locs_covar$lat <- sf::st_coordinates(locs_covar)[, 2]
+      sf::st_crs(locs_covar) <- 4326
+      local_tz <- lutz::tz_lookup_coords(
+        locs_covar$lat,
+        locs_covar$lon
+      )
+      locs_covar$local_hour <- lubridate::with_tz(
+        locs_covar$time,
+        tz = local_tz
+      ) |>
+        lubridate::hour()
+      pred_list[[i]] <- locs_covar
+    }
     message("   covariates extracted for grid cell ", id, "!")
   }
   # merge all prediction grids
