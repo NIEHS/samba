@@ -5,6 +5,7 @@
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed elevation raster
 #' @importFrom terra crop terrain
+#' @export
 process_elev <- function(elev, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(elev, polygon)) {
@@ -30,6 +31,7 @@ process_elev <- function(elev, polygon) {
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed imperviousness raster
 #' @importFrom terra crop
+#' @export
 process_imp <- function(imp, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(imp, polygon)) {
@@ -47,6 +49,7 @@ process_imp <- function(imp, polygon) {
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed building footprint raster
 #' @importFrom terra crop
+#' @export
 process_bf <- function(bf, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(bf, polygon)) {
@@ -64,6 +67,7 @@ process_bf <- function(bf, polygon) {
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed tree canopy cover raster
 #' @importFrom terra crop
+#' @export
 process_tcc <- function(tcc, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(tcc, polygon)) {
@@ -82,6 +86,7 @@ process_tcc <- function(tcc, polygon) {
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed local climate zone raster
 #' @importFrom terra crop
+#' @export
 process_lcz <- function(lcz, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(lcz, polygon)) {
@@ -99,6 +104,7 @@ process_lcz <- function(lcz, polygon) {
 #' @param polygon SpatVector polygon to crop raster
 #' @return RasterLayer: processed forest canopy height raster
 #' @importFrom terra crop
+#' @export
 process_fch <- function(fch, polygon) {
   # check if crs are the same and update polygon's crs if not
   if (!terra::same.crs(fch, polygon)) {
