@@ -53,9 +53,6 @@ inference <- function(
   # select times between ts and te
   data <- data[which(dplyr::between(data$time, ts, te)), ]
   pred <- pred[which(dplyr::between(pred$time, ts, te)), ]
-  polygon <- terra::ext(polygon) |>
-    terra::as.polygons(crs = terra::crs(polygon)) |>
-    terra::buffer(10000, joinstyle = "mitre")
   # select locations inside the polygon
   data <- terra::vect(data, geom = c("lon", "lat"), crs = "epsg:4326") |>
     terra::project(polygon) |>
