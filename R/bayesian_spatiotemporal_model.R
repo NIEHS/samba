@@ -8,6 +8,10 @@
 #' @param polygon a terra::SpatVector with the study area
 #' @param ts model start time
 #' @param te model end time
+#' @param mesh_max_edge integer. INLA mesh max edge, useful to change for
+#' larger areas. Default to 0.1 degrees lat-lon.
+#' @param mesh_cutoff integer. INLA mesh cutoff, useful to change for
+#' larger areas. Default to 0.005 degrees lat-lon.
 #' @param verbose logical, print INLA output
 #' @param debug logical, print INLA debugging info
 #' @return a list with the prediction and the model object
@@ -27,6 +31,8 @@ inference <- function(
   polygon,
   ts,
   te,
+  mesh_max_edge = 0.1,
+  mesh_cutoff = 0.005,
   verbose = FALSE,
   debug = FALSE
 ) {
@@ -66,8 +72,8 @@ inference <- function(
     terra::project("epsg:4326") |>
     as.data.frame(geom = "xy") |>
     dplyr::rename(lon = "x", lat = "y")
-  info$mesh_max_edge <- 0.1
-  info$mesh_cutoff <- 0.005
+  info$mesh_max_edge <- mesh_max_edge
+  info$mesh_cutoff <- mesh_cutoff
   # spatial mesh
   domain <- polygon |>
     terra::project("epsg:4326") |>
