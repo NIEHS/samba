@@ -1,6 +1,6 @@
 Package: samba
 Title: samba
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
     person("Eva", "Marques", , "eva.marques@nih.gov", role = c("aut", "cre")),
     person("Kyle", "Messier", role = "ctb")
