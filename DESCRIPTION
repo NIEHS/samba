@@ -35,7 +35,7 @@ Imports:
     terra (>= 1.7.78),
     tidyr,
     tidyselect,
-    tidyterra,
+    tidyterra (>= 0.6.1),
     tigris,
     utils
 Suggests:
