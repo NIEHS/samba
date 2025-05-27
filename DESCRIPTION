@@ -32,7 +32,7 @@ Imports:
     sf,
     stars,
     stats,
-    terra (>= 1.8.29),
+    terra (>= 1.7.78),
     tidyr,
     tidyselect,
     tidyterra,
