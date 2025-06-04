@@ -22,7 +22,7 @@ Key points:
 
 ### Step 2: download all necessary data
 
-- Personal weather stations data comes from WeatherUnderground, and is processed through brassens library 
+- Personal weather stations data comes from WeatherUnderground, and is processed through [brassens library](https://github.com/NIEHS/brassens)
 - Spatial covariates include elevation, forest canopy height and imperviousness
 - Meteorological covariates all come from ERA5 reanalysis at single level
 
