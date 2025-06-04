@@ -116,62 +116,65 @@ input_tri$info <- data.table::fread(
 cat("info loaded")
 
 if (FALSE) {
-input_npw$mod <- readRDS(
-  file = paste0(
-    "../case_study_phi_nyc/output/model",
-    model,
-    "_202101/model",
-    model,
-    "_inference_mod_",
-    "2021010106_2021013105",
-    ".csv"
+  input_npw$mod <- readRDS(
+    file = paste0(
+      "../case_study_phi_nyc/output/model",
+      model,
+      "_202101/model",
+      model,
+      "_inference_mod_",
+      "2021010106_2021013105",
+      ".csv"
+    )
   )
-)
-input_nps$mod <- readRDS(
-  file = paste0(
-    "../case_study_phi_nyc/output/model",
-    model,
-    "_202407/model",
-    model,
-    "_inference_mod_",
-    "2024070106_2024073104",
-    ".csv"
+  input_nps$mod <- readRDS(
+    file = paste0(
+      "../case_study_phi_nyc/output/model",
+      model,
+      "_202407/model",
+      model,
+      "_inference_mod_",
+      "2024070106_2024073104",
+      ".csv"
+    )
   )
-)
-input_phoe$mod <- readRDS(
-  file = paste0(
-    "../case_study_phoenix/output/model",
-    model,
-    "/model",
-    model,
-    "_inference_mod_",
-    "2023070109_2023073123",
-    ".csv"
+  input_phoe$mod <- readRDS(
+    file = paste0(
+      "../case_study_phoenix/output/model",
+      model,
+      "/model",
+      model,
+      "_inference_mod_",
+      "2023070109_2023073123",
+      ".csv"
+    )
   )
-)
-input_tri$mod <- readRDS(
-  file = paste0(
-    "../case_study_triangle/output/model",
-    model,
-    "/model",
-    model,
-    "_inference_mod_",
-    "2021070105_2021073123",
-    ".csv"
+  input_tri$mod <- readRDS(
+    file = paste0(
+      "../case_study_triangle/output/model",
+      model,
+      "/model",
+      model,
+      "_inference_mod_",
+      "2021070105_2021073123",
+      ".csv"
+    )
   )
-)
 }
 
 grad_alt <- function(z, temp) {
-    temp <- as.numeric(temp)
-    z <- as.numeric(z)
-    delta  <- - 0.006 * z
-    temp_sea <- temp - delta
-    return(temp_sea = temp_sea)
+  temp <- as.numeric(temp)
+  z <- as.numeric(z)
+  delta  <- - 0.006 * z
+  temp_sea <- temp - delta
+  return(temp_sea = temp_sea)
 }
 for (cs in c("npw", "nps", "phoe", "tri")){
   input <- get(paste0("input_", cs))
-  input$pred$pred_mean_demcorr <- grad_alt(input$pred$elev, input$pred$pred_mean)
+  input$pred$pred_mean_demcorr <- grad_alt(
+    input$pred$elev,
+    input$pred$pred_mean
+  )
   pred_mean_corr <- rasterize_pred(
     input$pred,
     varname = "pred_mean_demcorr"
@@ -187,10 +190,10 @@ for (cs in c("npw", "nps", "phoe", "tri")){
   pred_mean_avg <- terra::global(pred_mean, "mean", na.rm = TRUE)
   pred_mean_avg$time <- terra::time(pred_mean)
   uhi <- pred_mean - terra::global(pred_mean, "mean", na.rm = TRUE)$mean
-  
   pred_mean_corr_avg <- terra::global(pred_mean_corr, "mean", na.rm = TRUE)
   pred_mean_corr_avg$time <- terra::time(pred_mean_corr)
-  uhi_corr <- pred_mean_corr - terra::global(pred_mean_corr, "mean", na.rm = TRUE)$mean
+  uhi_corr <- pred_mean_corr -
+    terra::global(pred_mean_corr, "mean", na.rm = TRUE)$mean
   # save all uhi maps
   period <- seq(min(input$pred$time), max(input$pred$time), by = "1 hour")
   tz <- "UTC"
@@ -229,13 +232,14 @@ for (cs in c("npw", "nps", "phoe", "tri")) {
       "_",
       format(te, "%Y%m%d%H"),
       ".tif"
-    )
+    ),
+    overwrite = TRUE
   )
 }
 
 for (cs in c("npw", "nps", "phoe", "tri")){
   input <- get(paste0("input_", cs))
-# select ref stations within the rectangle area
+  # select ref stations within the rectangle area
   ref <- input$ref |>
     terra::vect() |>
     terra::project(input$area_rect) |>
@@ -247,8 +251,7 @@ for (cs in c("npw", "nps", "phoe", "tri")){
   ), ]
   assign(paste0("ref_eval_", cs), add_pred_to_pro(input$pred, ref))
 }
-
-# create rural and urban points in each city to compute the UHI 
+# create rural and urban points in each city to compute the UHI
 urb_pts <- rbind(
   c(-75.1, 40),
   c(-74, 40.72),
@@ -258,7 +261,13 @@ urb_pts <- rbind(
 ) |>
   as.data.frame()
 colnames(urb_pts) <- c("lon", "lat")
-urb_pts$city <- c("Philadelphia", "New York City", "Phoenix", "Raleigh", "Durham")
+urb_pts$city <- c(
+  "Philadelphia",
+  "New York City",
+  "Phoenix",
+  "Raleigh",
+  "Durham"
+)
 urb_pts$type <- "urb"
 rur_pts <- rbind(
   c(-75.23, 40.08),
@@ -269,7 +278,13 @@ rur_pts <- rbind(
 ) |>
   as.data.frame()
 colnames(rur_pts) <- c("lon", "lat")
-rur_pts$city <- c("Philadelphia", "New York City", "Phoenix", "Raleigh", "Durham")
+rur_pts$city <- c(
+  "Philadelphia",
+  "New York City",
+  "Phoenix",
+  "Raleigh",
+  "Durham"
+)
 rur_pts$type <- "rur"
 pts <- rbind(urb_pts, rur_pts) |>
   terra::vect(geom = c("lon", "lat"), crs = "epsg:4326")
@@ -277,17 +292,34 @@ pts <- rbind(urb_pts, rur_pts) |>
 
 # load cws
 source("../case_study_phi_nyc/open_phi_nyc_202101.R")
-data <- open_phi_nyc(cws = TRUE, covariates = TRUE, path = "../case_study_phi_nyc/")
+data <- open_phi_nyc(
+  cws = TRUE,
+  covariates = TRUE,
+  path = "../case_study_phi_nyc/"
+)
 input_npw$cws <- data$cws
 input_npw$lcz <- data$lcz
 source("../case_study_phi_nyc/open_phi_nyc_202407.R")
-data <- open_phi_nyc(cws = TRUE, covariates = TRUE, path = "../case_study_phi_nyc/")
+data <- open_phi_nyc(
+  cws = TRUE,
+  covariates = TRUE,
+  path = "../case_study_phi_nyc/"
+)
 input_nps$cws <- data$cws
 input_nps$lcz <- data$lcz
-data <- open_phoenix(cws = TRUE, covariates = TRUE, path = "../case_study_phoenix/")
+source("../case_study_phoenix/open_phoenix.R")
+data <- open_phoenix(
+  cws = TRUE,
+  covariates = TRUE,
+  path = "../case_study_phoenix/"
+)
 input_phoe$cws <- data$cws
 input_phoe$lcz <- data$lcz
-data <- open_triangle(cws = TRUE, covariates = TRUE, path = "../case_study_triangle/")
+
+data <- open_triangle(
+  cws = TRUE,
+  covariates = TRUE,
+  path = "../case_study_triangle/"
+)
 input_tri$cws <- data$cws
 input_tri$lcz <- data$lcz
-

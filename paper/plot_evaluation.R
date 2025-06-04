@@ -59,13 +59,6 @@ map_lcz <- function(lcz, plot_shp, stations) {
     scale_size_manual(
       values = c("ref" = 2.5, "pws" = 2.5)
     ) +
-    # tidyterra::geom_spatvector_text(
-    #   data = ref,
-    #   ggplot2::aes(label = site_id),
-    #   color = "white",
-    #   nudge_y = 0.5,
-    #   size = 5
-    # ) +
     ggplot2::scale_fill_manual(
       values = load_palette("lcz")$col,
       breaks = load_palette("lcz")$num,
@@ -94,7 +87,7 @@ map_lcz <- function(lcz, plot_shp, stations) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-    return(p)
+  return(p)
 }
 
 cs <- c("npw", "nps", "phoe", "tri")
@@ -185,32 +178,49 @@ for (cs in c("npw", "nps", "phoe", "tri")){
     city <- c("Raleigh", "Durham")
   }
   uhi <- get(paste0("uhiavg_", cs))
+  raster <- get(paste0("raster_", cs))
+  uhi_t <- raster - terra::global(raster, "mean", na.rm = TRUE)$mean
+  # /!\ 10UTC = 5am in all case studies except for Phoenix
+  uhi_night <- uhi_t[[which(lubridate::hour(terra::time(uhi_t)) == 10)]] |>
+    terra::mean()
   uhi_corr <- get(paste0("uhiavg_corr_", cs))
   plot_shp <- get(paste0("input_", cs))$plot_shp
   p_uhi <- map_uhi(uhi, plot_shp) +
-  tidyterra::geom_spatvector(
-    data = pts[which(pts$city %in% city)],
-    fill = NA,
-    aes(shape = type),
-    size = 6,
-    stroke = 1.5,
-    color = "black",
-    linewidth = .1
-  ) +
-  scale_shape_manual(values = shape_type)
+    tidyterra::geom_spatvector(
+      data = pts[which(pts$city %in% city)],
+      fill = NA,
+      aes(shape = type),
+      size = 6,
+      stroke = 1.5,
+      color = "black",
+      linewidth = .1
+    ) +
+    scale_shape_manual(values = shape_type)
+  p_uhi_night <- map_uhi(uhi_night, plot_shp) +
+    tidyterra::geom_spatvector(
+      data = pts[which(pts$city %in% city)],
+      fill = NA,
+      aes(shape = type),
+      size = 6,
+      stroke = 1.5,
+      color = "black",
+      linewidth = .1
+    ) +
+    scale_shape_manual(values = shape_type)
   p_uhi_corr <- map_uhi(uhi_corr, plot_shp) +
-  tidyterra::geom_spatvector(
-    data = pts[which(pts$city %in% city)],
-    fill = NA,
-    aes(shape = type),
-    size = 6,
-    stroke = 1.5,
-    color = "black",
-    linewidth = .1
-  ) +
-  scale_shape_manual(values = shape_type)
+    tidyterra::geom_spatvector(
+      data = pts[which(pts$city %in% city)],
+      fill = NA,
+      aes(shape = type),
+      size = 6,
+      stroke = 1.5,
+      color = "black",
+      linewidth = .1
+    ) +
+    scale_shape_manual(values = shape_type)
   assign(paste0("p_uhi_", cs), p_uhi)
   assign(paste0("p_uhi_corr_", cs), p_uhi_corr)
+  assign(paste0("p_uhi_night_", cs), p_uhi_night)
 }
 p_uhi <- ggpubr::ggarrange(
   p_uhi_npw,
@@ -241,6 +251,37 @@ ggsave(
   height = 8,
   dpi = 300
 )
+p_uhi_night <- ggpubr::ggarrange(
+  p_uhi_night_npw,
+  p_uhi_night_nps,
+  p_uhi_night_phoe,
+  p_uhi_night_tri,
+  nrow = 2,
+  ncol = 2,
+  legend = "top",
+  common.legend = TRUE
+)
+p_uhi_night
+ggsave(
+  plot = p_uhi_night,
+  "./graphs/uhi_night.pdf",
+  width = 12,
+  height = 12,
+  dpi = 300,
+  bg = "white"
+)
+ggsave(
+  plot = p_uhi_night_nps +
+    guides(
+      fill = guide_colourbar(barwidth = 30, barheight = 1.5),
+      shape = "none"
+    ),
+  "./graphs/uhi_night_nps.pdf",
+  width = 7,
+  height = 7,
+  dpi = 300,
+  bg = "white"
+)
 p_uhi_corr <- ggpubr::ggarrange(
   p_uhi_corr_npw,
   p_uhi_corr_nps,
@@ -259,6 +300,34 @@ ggsave(
   height = 12,
   dpi = 300
 )
+
+
+# Only one timestamp
+uhi_t <- raster_nps - terra::global(raster_nps, "mean", na.rm = TRUE)$mean
+uhi_time <- uhi_t[[which(lubridate::hour(terra::time(uhi_t)) == 10 &
+  lubridate::day(terra::time(uhi_t)) == 2)]]
+plot_shp <- input_nps$plot_shp
+city <- c("Philadelphia", "New York City")
+p_uhi <- map_uhi(uhi_time, plot_shp) +
+    tidyterra::geom_spatvector(
+      data = pts[which(pts$city %in% city)],
+      fill = NA,
+      aes(shape = type),
+      size = 6,
+      stroke = 1.5,
+      color = "black",
+      linewidth = .1
+    ) +
+    scale_shape_manual(values = shape_type)
+p_uhi
+ggsave(
+  plot = p_uhi,
+  "./graphs/uhi_nps_2024070210UTC.pdf",
+  width = 7,
+  height = 7,
+  dpi = 300
+)
+
 
 # extract timeseries at each point
 loc_cs <- list("pw", "nw", "ps", "ns", "phoe", "ral", "durh")
@@ -369,18 +438,18 @@ p_uhi <- ggplot(timeseries_day_w) +
   ) +
   facet_wrap(vars(city), ncol = 5) +
   geom_hline(yintercept = 0, color = "red") +
-  guides(linetype = guide_legend(keywidth = unit(2, 'cm'))) +
+  guides(linetype = guide_legend(keywidth = unit(2, "cm"))) +
   ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size = 20),
-      strip.text.x = element_text(size = 20),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 20),
-      legend.title = ggplot2::element_text(size = 20),
-      legend.position = "top",
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
-    )
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 20),
+    strip.text.x = element_text(size = 20),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 20),
+    legend.title = ggplot2::element_text(size = 20),
+    legend.position = "top",
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 p_uhi
 ggsave(
   plot = p_uhi,
@@ -401,10 +470,9 @@ p_ts_eg <- ggplot(df_plot) +
       x = local_time,
       y = temp,
       group = interaction(type, city),
-      color = type #,
-      #linetype = type
+      color = type
     ),
-  linewidth = 1.5
+    linewidth = 1.5
   ) +
   geom_hline(yintercept = 32.22, color = "black") +
   labs(
@@ -414,15 +482,15 @@ p_ts_eg <- ggplot(df_plot) +
   scale_linetype_manual(values = linetype_type) +
   scale_color_manual(values = color_type) +
   ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size = 15),
-      strip.text.x = element_text(size = 15),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 15),
-      legend.title = ggplot2::element_text(size = 15),
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
-    )
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 15),
+    strip.text.x = element_text(size = 15),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 15),
+    legend.title = ggplot2::element_text(size = 15),
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 p_ts_eg
 ggsave(
   plot = p_ts_eg,
@@ -434,6 +502,7 @@ ggsave(
 
 # UHI tileplots
 mytile <- function(df, fill) {
+  local_time <- NULL
   plot <- ggplot(
     df,
     aes(
@@ -464,7 +533,8 @@ mytile <- function(df, fill) {
       colours = load_palette("temp_ipcc"),
       breaks = seq(-9, 9, 1),
       limits = c(-9, 9),
-      na.value = "grey") +
+      na.value = "grey"
+    ) +
     guides(fill = guide_colourbar(barwidth = 45, barheight = 1.5)) +
     theme(
       axis.text.x = element_text(size = 22),
@@ -485,26 +555,40 @@ mytile <- function(df, fill) {
   return(plot)
 }
 
-p_nyw <- timeseries_w[which(timeseries_w$city == "New York City" &
-  timeseries_w$month == "01/2021"), ] |>
+p_nyw <- timeseries_w[which(
+  timeseries_w$city == "New York City" &
+    timeseries_w$month == "01/2021"
+), ] |>
   mytile("uhi")
-p_phw <- timeseries_w[which(timeseries_w$city == "Philadelphia" &
-  timeseries_w$month == "01/2021"), ] |>
+p_phw <- timeseries_w[which(
+  timeseries_w$city == "Philadelphia" &
+    timeseries_w$month == "01/2021"
+), ] |>
   mytile("uhi")
-p_nys <- timeseries_w[which(timeseries_w$city == "New York City" &
-  timeseries_w$month == "07/2024"), ] |>
+p_nys <- timeseries_w[which(
+  timeseries_w$city == "New York City" &
+    timeseries_w$month == "07/2024"
+), ] |>
   mytile("uhi")
-p_phs <- timeseries_w[which(timeseries_w$city == "Philadelphia" &
-  timeseries_w$month == "07/2024"), ] |>
+p_phs <- timeseries_w[which(
+  timeseries_w$city == "Philadelphia" &
+    timeseries_w$month == "07/2024"
+), ] |>
   mytile("uhi")
-p_pho <- timeseries_w[which(timeseries_w$city == "Phoenix" &
-  timeseries_w$month == "07/2023"), ] |>
+p_pho <- timeseries_w[which(
+  timeseries_w$city == "Phoenix" &
+    timeseries_w$month == "07/2023"
+), ] |>
   mytile("uhi")
-p_ral <- timeseries_w[which(timeseries_w$city == "Raleigh" &
-  timeseries_w$month == "07/2021"), ] |>
+p_ral <- timeseries_w[which(
+  timeseries_w$city == "Raleigh" &
+    timeseries_w$month == "07/2021"
+), ] |>
   mytile("uhi")
-p_dur <- timeseries_w[which(timeseries_w$city == "Durham" &
-  timeseries_w$month == "07/2021"), ] |>
+p_dur <- timeseries_w[which(
+  timeseries_w$city == "Durham" &
+    timeseries_w$month == "07/2021"
+), ] |>
   mytile("uhi")
 tile_uhi <- ggpubr::ggarrange(
   p_nyw,
@@ -548,8 +632,20 @@ ref_eval_nps$cs <- "Phi/NYC 07/2024"
 ref_eval_phoe$cs <- "Phoenix 07/2023"
 ref_eval_tri$cs <- "Triangle 07/2021"
 ref_eval_tri$network <- "ECONET"
-cols <- c("time", "lon_pred", "lat_pred", "lon", "lat",
-  "site_id", "temp", "network", "pred_mean", "geometry", "res", "cs")
+cols <- c(
+  "time",
+  "lon_pred",
+  "lat_pred",
+  "lon",
+  "lat",
+  "site_id",
+  "temp",
+  "network",
+  "pred_mean",
+  "geometry",
+  "res",
+  "cs"
+)
 ref <- rbind(
   ref_eval_npw[, ..cols],
   ref_eval_nps[, ..cols],
@@ -613,7 +709,7 @@ p_res_ridges_nps <- ggplot(ref[which(ref$cs == "Phi/NYC 07/2024"), ]) +
   geom_vline(xintercept = -1, color = "darkgreen", linetype = "dashed") +
   geom_vline(xintercept = 1, color = "darkgreen", linetype = "dashed") +
   ggplot2::scale_fill_gradientn(
-    name = "", #latex2exp::TeX("$T2M_{BHM} - T2M_{ref}$ (°C)"),
+    name = "",
     colours = load_palette("temp_ipcc"),
     na.value = NA,
     limits = c(-6, 6),
@@ -648,10 +744,18 @@ calculate_rmse <- function(res) {
 
 calculate_rmse(ref$res)
 
+
 rmse_by_cs <- ref |>
   dplyr::group_by(cs) |>
   dplyr::summarise(RMSE = calculate_rmse(res))
 rmse_by_cs
+
+rmse_by_site_id <- ref |>
+  dplyr::group_by(site_id, cs) |>
+  dplyr::summarise(RMSE = calculate_rmse(res))
+rmse_by_site_id
+ggplot(rmse_by_site_id) +
+  geom_histogram(aes(x = RMSE))
 
 rmse_by_cs_localhour <- ref |>
   dplyr::group_by(cs, local_hour) |>
@@ -659,17 +763,18 @@ rmse_by_cs_localhour <- ref |>
 rmse_by_cs_localhour
 
 p_rmse <- ggplot(rmse_by_cs_localhour) +
-  geom_line(aes(
-    x = local_hour,
-    y = RMSE,
-    group = cs,
-    color = cs
+  geom_line(
+    aes(
+      x = local_hour,
+      y = RMSE,
+      group = cs,
+      color = cs
     ),
     linewidth = 1
   ) +
   scale_color_manual(values = color_cs_full) +
   labs(color = "", x = "Local time(h)") +
-  guides(color = guide_legend(keywidth = unit(2, 'cm'))) +
+  guides(color = guide_legend(keywidth = unit(2, "cm"))) +
   ggplot2::theme(
     axis.title = ggplot2::element_text(size = 24),
     axis.text = ggplot2::element_text(size = 18),
@@ -733,7 +838,8 @@ ggplot(ref) +
   coord_equal()
 
 # PLOT PRO RMSE AND SD background
-map_error_sd <- function(sd, plot_shp, pro) {
+map_error_sd <- function(sd, plot_shp, pro, cws) {
+  rmse <- NULL
   p <- ggplot() +
     tidyterra::geom_spatraster(data = sd) +
     tidyterra::geom_spatvector(
@@ -746,6 +852,11 @@ map_error_sd <- function(sd, plot_shp, pro) {
       data = pro,
       color = "black",
       size = 4.4
+    ) +
+    tidyterra::geom_spatvector(
+      data = cws,
+      fill = "black",
+      size = 1
     ) +
     tidyterra::geom_spatvector(
       data = pro,
@@ -799,7 +910,7 @@ map_error_sd <- function(sd, plot_shp, pro) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-    return(p)
+  return(p)
 }
 
 for (cs in c("npw", "nps", "phoe", "tri")){
@@ -810,39 +921,45 @@ for (cs in c("npw", "nps", "phoe", "tri")){
   } else if (cs %in% c("tri")) {
     city <- c("Raleigh", "Durham")
   }
+  input <- get(paste0("input_", cs))
+  cws <- input$cws[, c("site_id", "lon", "lat")] |>
+    dplyr::distinct() |>
+    terra::vect(geom = c("lon", "lat"), crs = "epsg:4326")
   pro <- get(paste0("ref_eval_", cs))
-  pro <- pro[,
+  pro <- pro[
+    ,
     .(rmse = sqrt(mean(.SD$res^2, na.rm = TRUE))),
     by = .(site_id, lat, lon),
-    .SDcols = "res"] |>
+    .SDcols = "res"
+  ] |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326) |>
     terra::vect()
   p <- map_error_sd(
-        get(paste0("sdavg_", cs)),
-        get(paste0("input_", cs))$plot_shp,
-        pro
-       ) 
-  # #uncomment to display rur-urb pts
-  # + 
-  #     tidyterra::geom_spatvector(data = pts[which(pts$city %in% city), ],
-  # fill = NA,
-  #   aes(shape = type),
-  #   size = 7,
-  #   stroke = 1.5,
-  #   color = "royalblue3",
-  #   linewidth = .1
-  # ) +
-  # scale_shape_manual(values = shape_type)
-    assign(
-      paste0("pred_mean_corr", cs),
-      p
-    )
+    get(paste0("sdavg_", cs)),
+    get(paste0("input_", cs))$plot_shp,
+    pro,
+    cws
+  ) # +
+  #   tidyterra::geom_spatvector(
+  #     data = pts[which(pts$city %in% city), ],
+  #     fill = NA,
+  #     aes(shape = type),
+  #     size = 7,
+  #     stroke = 1.5,
+  #     color = "royalblue3",
+  #     linewidth = .1
+  #   ) +
+  #   scale_shape_manual(values = shape_type)
+  assign(
+    paste0("pred_sd_", cs),
+    p
+  )
 }
 p_sd <- ggpubr::ggarrange(
-  pred_mean_corrnpw,
-  pred_mean_corrnps,
-  pred_mean_corrphoe,
-  pred_mean_corrtri,
+  pred_sd_npw,
+  pred_sd_nps,
+  pred_sd_phoe,
+  pred_sd_tri,
   nrow = 2,
   ncol = 2,
   legend = "right",
@@ -864,7 +981,7 @@ ggsave(
   dpi = 300
 )
 
-# info analysis 
+# info analysis
 plot(terra::time(raster_sd_phoe), raster_sd_phoe[2], type = "l")
 plot(terra::time(raster_sd_phoe), raster_sd_phoe[2000], type = "l")
 plot(terra::time(raster_sd_tri), raster_sd_tri[2], type = "l")
@@ -904,13 +1021,16 @@ for (i in seq_along(cs)) {
   tvar_coeffs[[i]] <- coeffs
 }
 tvar_coeffs <-  do.call("rbind", tvar_coeffs)
-tvar_coeffs[which(tvar_coeffs$cs == "phoe" & tvar_coeffs$var == "fch"), ]$mean <- NA
-tvar_coeffs[which(tvar_coeffs$cs == "phoe" & tvar_coeffs$var == "fch"), ]$sd <- NA
+tvar_coeffs[
+  which(tvar_coeffs$cs == "phoe" & tvar_coeffs$var == "fch"),
+]$mean <- NA
+tvar_coeffs[
+  which(tvar_coeffs$cs == "phoe" & tvar_coeffs$var == "fch"),
+]$sd <- NA
 
 var <- c("elev", "fch", "imp")
 prior_mean <- c(-0.006, 0, 0)
-prior_sd <- c(sqrt(1 / 10000), sqrt(1/100), sqrt(1 / 200))
-#yn <- c(-0.04, -0.3, -0.3)
+prior_sd <- c(sqrt(1 / 10000), sqrt(1 / 100), sqrt(1 / 200))
 yn <- c(-0.015, -0.1, -0.035)
 yx <- - yn
 p <- list()
@@ -958,48 +1078,50 @@ blank_df <- blank_df |>
     names_to = "type",
     values_to = "y"
   )
-blank_df$x = 2
+blank_df$x <- 2
 blank_df$y <- as.numeric(blank_df$y)
 
 p_tvar_coeffs <- ggplot(tvar_coeffs) +
-    geom_line(aes(x = local_hour, y = mean, color = cs, group = cs)) +
-    geom_ribbon(
-      aes(
-        x = local_hour,
-        ymin = mean - 2 * sd,
-        ymax = mean + 2 * sd, fill = cs
-      ),
-      alpha = 0.1
-    ) +
-    geom_blank(data = blank_df, aes(x = x, y = y)) +
-    facet_wrap(vars(var), nrow = 3, scales = "free_y") +
-    geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-    scale_color_manual("", values = color_cs) +
-    scale_fill_manual("", values = color_cs) +
-    xlab("Local time (h)") +
-    # latex2exp
-    ylab(latex2exp::TeX("coef $\\mu\\pm 2\\sigma$")) +
-    scale_x_continuous(
-      breaks = seq(0, 23, 1)) +
-    guides(color = guide_legend(keywidth = unit(2, 'cm')),
-      fill = guide_legend(keywidth = unit(2, 'cm'))) +
-    theme(
-      legend.position = "bottom",
-      legend.direction = "horizontal",
-      legend.box = "vertical",
-      axis.title = element_text(size = 18),
-      axis.text.x = element_text(size = 18),
-      axis.text.y = element_text(
-        size = 12,
-        hjust = .5
-      ),
-      strip.text.x = element_text(size = 18),
-      plot.caption = element_text(size = 18),
-      legend.text = element_text(size = 18),
-      legend.title = element_text(size = 18),
-      panel.background = element_rect(fill = "white"),
-      panel.grid.major = element_line(colour = "grey")
-    )
+  geom_line(aes(x = local_hour, y = mean, color = cs, group = cs)) +
+  geom_ribbon(
+    aes(
+      x = local_hour,
+      ymin = mean - 2 * sd,
+      ymax = mean + 2 * sd, fill = cs
+    ),
+    alpha = 0.1
+  ) +
+  geom_blank(data = blank_df, aes(x = x, y = y)) +
+  facet_wrap(vars(var), nrow = 3, scales = "free_y") +
+  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
+  scale_color_manual("", values = color_cs) +
+  scale_fill_manual("", values = color_cs) +
+  xlab("Local time (h)") +
+  ylab(latex2exp::TeX("coef $\\mu\\pm 2\\sigma$")) +
+  scale_x_continuous(
+    breaks = seq(0, 23, 1)
+  ) +
+  guides(
+    color = guide_legend(keywidth = unit(2, "cm")),
+    fill = guide_legend(keywidth = unit(2, "cm"))
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    legend.box = "vertical",
+    axis.title = element_text(size = 18),
+    axis.text.x = element_text(size = 18),
+    axis.text.y = element_text(
+      size = 12,
+      hjust = .5
+    ),
+    strip.text.x = element_text(size = 18),
+    plot.caption = element_text(size = 18),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18),
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(colour = "grey")
+  )
 p_tvar_coeffs
 ggsave(
   plot = p_tvar_coeffs,
@@ -1056,18 +1178,18 @@ p_era5 <- ggplot(result_df, aes(x = x, y = y)) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   scale_color_manual(values = color_cs) +
   labs(x = "", y = "", color = "") +
-  guides(color = guide_legend(keywidth = unit(2, 'cm'))) +
+  guides(color = guide_legend(keywidth = unit(2, "cm"))) +
   ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size = 20),
-      strip.text.x = element_text(size = 20),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 20),
-      legend.title = ggplot2::element_text(size = 20),
-      legend.position = "top",
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
-    )
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 20),
+    strip.text.x = element_text(size = 20),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 20),
+    legend.title = ggplot2::element_text(size = 20),
+    legend.position = "top",
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 ggsave(
   plot = p_era5,
   "./graphs/era5_coefficients_posterior.pdf",
@@ -1076,17 +1198,17 @@ ggsave(
   dpi = 300
 )
 
-# density of predicition at one given location 
+# density of predicition at one given location
 loc <- ref_eval_nps[which(ref_eval_nps$site_id == "MANH"), ]
 time_t <- as.POSIXct("2024-07-20 16:00:00", tz = "America/New_York")
 mean <- loc[which(loc$time == time_t), ]$pred_mean
 sd <- loc[which(loc$time == time_t), ]$pred_sd
 t_ref <- loc[which(loc$time == time_t), ]$temp
 sd_shaded <- function(x, mean, sd, bound) {
-    y = dnorm(x, mean = mean, sd = sd)
-    y[x < mean - bound] <- NA
-    y[x > mean + bound] <- NA
-    return(y)
+  y <- dnorm(x, mean = mean, sd = sd)
+  y[x < mean - bound] <- NA
+  y[x > mean + bound] <- NA
+  return(y)
 }
 x_values <- data.frame(x = seq(mean - 4 * sd, mean + 4 * sd, length.out = 100))
 p_gauss <- ggplot(x_values, aes(x = x)) +
@@ -1095,13 +1217,15 @@ p_gauss <- ggplot(x_values, aes(x = x)) +
     args = list(mean = mean, sd = sd, bound = sd * 2),
     geom = "area",
     fill = "ivory2",
-    alpha = 1) +
+    alpha = 1
+  ) +
   stat_function(
     fun = sd_shaded,
     args = list(mean = mean, sd = sd, bound = sd),
     geom = "area",
     fill = "ivory",
-    alpha = 1) +
+    alpha = 1
+  ) +
   stat_function(
     fun = dnorm,
     args = list(mean = mean, sd = sd),
@@ -1129,8 +1253,9 @@ p_gauss <- ggplot(x_values, aes(x = x)) +
     label = latex2exp::TeX("$\\bar{p(z_{mt}|\\textbf{y})} = T2M_{BHM}$"),
     color = "hotpink3",
     size = 6
-    ) +
-  annotate("text",
+  ) +
+  annotate(
+    "text",
     x = t_ref,
     y = 0.25,
     angle = 90,
@@ -1148,39 +1273,35 @@ p_gauss <- ggplot(x_values, aes(x = x)) +
     size = 8
   ) +
   labs(
-    #title = paste0(time_t, " (local time)"),
     x = "",
     y = ""
   ) +
   scale_x_continuous(
     breaks = c(
-      #seq(floor(mean - 4 * sd), ceiling(mean + 4 * sd), 2),
       mean - 2 * sd,
       mean + 2 * sd,
       mean - sd,
       mean + sd,
-      round(mean, 1)#,
-      #round(t_ref, 1)
+      round(mean, 1)
     ),
     labels = c(
       latex2exp::TeX("$\\mu - 2\\sigma$"),
       latex2exp::TeX("$\\mu + 2\\sigma$"),
       latex2exp::TeX("$\\mu - \\sigma$"),
       latex2exp::TeX("$\\mu + \\sigma$"),
-      latex2exp::TeX("$\\mu$") #,
-      #latex2exp::TeX("$T2M_{ref}$")
+      latex2exp::TeX("$\\mu$")
     )
   ) +
   theme(
-      title = element_text(size = 15),
-      axis.ticks.x = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.text.x = element_text(size = 18),
-      axis.text.y = element_blank(),
-      plot.caption = element_text(size = 18),
-      panel.background = element_rect(fill = "white"),
-      panel.grid.major = element_blank()
-    )
+    title = element_text(size = 15),
+    axis.ticks.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.text.x = element_text(size = 18),
+    axis.text.y = element_blank(),
+    plot.caption = element_text(size = 18),
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_blank()
+  )
 p_gauss
 ggsave(
   plot = p_gauss,
@@ -1209,12 +1330,13 @@ map_hot_night_duration <- function(duration_rast, plot_shp, thresh) {
       limits = c(0, 9),
       breaks = seq(0, 9, by = 1)
     ) +
-    guides(fill = guide_colourbar(
-      barwidth = 10,
-      barheight = 1.5,
-      #title.position = "top",
-      keywidth = 10
-    )) +
+    guides(
+      fill = guide_colourbar(
+        barwidth = 10,
+        barheight = 1.5,
+        keywidth = 10
+      )
+    ) +
     ggspatial::annotation_scale(
       location = "tl", pad_x = ggplot2::unit(1, "cm"),
       pad_y = ggplot2::unit(1, "cm"),
@@ -1238,13 +1360,13 @@ map_hot_night_duration <- function(duration_rast, plot_shp, thresh) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-    return(p)
+  return(p)
 }
 # Nocturnal exposure maps
 cs <- c("nps", "phoe", "tri")
-#thresh <- c(23, 33, 23)
-thresh <- c(23.8, 32, 23.3) # 0.90 percentile
-#thresh <- c(24.6, 32.8, 23.8) # 0.95 percentile
+# following is the 0.90 percentile, change to
+# 24.6, 32.8, 23.8 for 0.95 percentile
+thresh <- c(23.8, 32, 23.3)
 for (i in seq_along(cs)) {
   input <- get(paste0("input_", cs[[i]]))
   pred <- input$pred
@@ -1327,7 +1449,8 @@ for (i in seq_along(cs)) {
     terra::project(terra::crs(pop))
   myvect$pop <- terra::extract(
     pop,
-    myvect, fun = mean)$gpw_v4_population_density_rev11_2020_30_sec
+    myvect, fun = mean
+  )$gpw_v4_population_density_rev11_2020_30_sec
   myvect$log10pop <- log10(myvect$pop)
   mydf <- myvect |>
     sf::st_as_sf(remove = FALSE) |>
@@ -1336,7 +1459,9 @@ for (i in seq_along(cs)) {
     geom_pointdensity(alpha = 1) +
     scale_color_viridis() +
     scale_y_continuous(
-      latex2exp::TeX("Avg duration $\\phantom{x}T2M_{noct}\\geqq_{0.9}\\phantom{x}$(h)"),
+      latex2exp::TeX(
+        "Avg duration $\\phantom{x}T2M_{noct}\\geqq_{0.9}\\phantom{x}$(h)"
+      ),
       breaks = seq(0, 9, 1)
     ) +
     scale_x_log10("Population (log scale)") +
@@ -1377,7 +1502,8 @@ for (i in seq_along(cs)) {
   myvect$pop <- terra::extract(
     pop,
     myvect,
-    fun = mean)$gpw_v4_population_density_rev11_2020_30_sec
+    fun = mean
+  )$gpw_v4_population_density_rev11_2020_30_sec
   myvect <- myvect[which(!(is.na(myvect$pop))), ]
   myvect$log10pop <- ifelse(myvect$pop <= 1, 0, log10(myvect$pop))
   mydf <- myvect |>
@@ -1385,29 +1511,29 @@ for (i in seq_along(cs)) {
     data.frame()
   mydf$cs <- cs[[i]]
   assign(paste0("mydf_", cs[[i]]), mydf)
-  
   p_pop_ridges <- ggplot(data = mydf) +
     geom_density_ridges_gradient(
-    aes(x = avg_duration, y = factor(floor(log10pop)), fill = after_stat(x)),
-    scale = 2,
-    rel_min_height = 0.01
-  ) +
+      aes(x = avg_duration, y = factor(floor(log10pop)), fill = after_stat(x)),
+      scale = 2,
+      rel_min_height = 0.01
+    ) +
     scale_fill_stepsn(
       colors = c("white", "darkslateblue"),
       na.value = NA,
       limits = c(0, 9),
       breaks = seq(0, 9, by = 1)
     ) +
-    guides(fill = guide_colourbar(
-      barwidth = 30,
-      barheight = 1.5,
-      keywidth = 30)
+    guides(
+      fill = guide_colourbar(
+        barwidth = 30,
+        barheight = 1.5,
+        keywidth = 30
+      )
     ) +
     scale_x_continuous(
       name = latex2exp::TeX("$\\tau_{AVG}\\phantom{x}$(h)"),
       limits = c(0, 9),
       breaks = seq(0, 9, 1)
-      #latex2exp::TeX("Median duration $\\phantom{x}T2M_{noct}\\geq q_{0.9}\\phantom{x}$(h)"),
     ) +
     scale_y_discrete(
       "Population (log scale)",
@@ -1429,49 +1555,48 @@ for (i in seq_along(cs)) {
 }
 mydf <- rbind(mydf_nps, mydf_phoe, mydf_tri)
 p_pop_ridges <- ggplot(data = mydf) +
-    geom_density_ridges_gradient(
+  geom_density_ridges_gradient(
     aes(x = avg_duration, y = factor(floor(log10pop)), fill = after_stat(x)),
     scale = 2,
     rel_min_height = 0.01
   ) +
-    facet_wrap(vars(cs)) +
-    scale_fill_stepsn(
-      colors = c("white", "darkslateblue"),
-      name = latex2exp::TeX("Hot night avg duration (h)"),
-      na.value = NA,
-      limits = c(0, 9),
-      breaks = seq(0, 9, by = 1)
-    ) +
-    scale_x_continuous(
-      name = latex2exp::TeX("$\\tau_{AVG}\\phantom{x}$(h)"),
-      limits = c(0, 9),
-      breaks = seq(0, 9, 1)
-      #latex2exp::TeX("Median duration $\\phantom{x}T2M_{noct}\\geq q_{0.9}\\phantom{x}$(h)"),
-    ) +
-    guides(
-      fill = guide_colourbar(
-        barwidth = 30,
-        barheight = 1.5,
-        keywidth = 30
-      )
-    ) +
-    scale_y_discrete(
-      "Population (log scale)",
-      breaks = c(0, 1, 2, 3, 4, 5),
-      labels = c("0-1", "10", "10e1", "10e2", "10e3", "10e4")
-    ) +
-    ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size = 20),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 20),
-      plot.title = ggplot2::element_text(size = 20),
-      strip.text.x = element_text(size = 20),
-      legend.title = ggplot2::element_text(size = 24, hjust = .5),
-      legend.position = "bottom",
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
+  facet_wrap(vars(cs)) +
+  scale_fill_stepsn(
+    colors = c("white", "darkslateblue"),
+    name = latex2exp::TeX("Hot night avg duration (h)"),
+    na.value = NA,
+    limits = c(0, 9),
+    breaks = seq(0, 9, by = 1)
+  ) +
+  scale_x_continuous(
+    name = latex2exp::TeX("$\\tau_{AVG}\\phantom{x}$(h)"),
+    limits = c(0, 9),
+    breaks = seq(0, 9, 1)
+  ) +
+  guides(
+    fill = guide_colourbar(
+      barwidth = 30,
+      barheight = 1.5,
+      keywidth = 30
     )
+  ) +
+  scale_y_discrete(
+    "Population (log scale)",
+    breaks = c(0, 1, 2, 3, 4, 5),
+    labels = c("0-1", "10", "10e1", "10e2", "10e3", "10e4")
+  ) +
+  ggplot2::theme(
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 20),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 20),
+    plot.title = ggplot2::element_text(size = 20),
+    strip.text.x = element_text(size = 20),
+    legend.title = ggplot2::element_text(size = 24, hjust = .5),
+    legend.position = "bottom",
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 p_pop_ridges
 ggsave(
   plot = p_pop_ridges,
@@ -1490,7 +1615,8 @@ for (i in seq_along(cs)) {
     terra::project(terra::crs(pop))
   myvect$pop <- terra::extract(
     pop,
-    myvect, fun = mean)$gpw_v4_population_density_rev11_2020_30_sec
+    myvect, fun = mean
+  )$gpw_v4_population_density_rev11_2020_30_sec
   myvect <- myvect[which(!(is.na(myvect$pop))), ]
   myvect$log10pop <- ifelse(myvect$pop <= 1, 0, log10(myvect$pop))
   mydf <- myvect |>
@@ -1502,7 +1628,6 @@ for (i in seq_along(cs)) {
     geom_pointdensity(alpha = 1) +
     geom_hline(yintercept = 0, linetype = "dashed") +
     scale_color_viridis() +
-    #scale_y_continuous(breaks = seq(-6, 6, 1), limits = c(-6, 6)) +
     scale_x_log10("Population (log scale)") +
     labs(y = latex2exp::TeX("$UHI_{q0.5}$(°C)")) +
     ggplot2::theme(
@@ -1534,41 +1659,40 @@ ggsave(
 
 mydf <- rbind(mydf_nps, mydf_phoe, mydf_tri)
 p_pop_ridges <- ggplot(data = mydf) +
-    geom_density_ridges_gradient(
+  geom_density_ridges_gradient(
     aes(x = mean, y = factor(floor(log10pop)), fill = after_stat(x)),
     scale = 2,
     rel_min_height = 0.01
   ) +
-    facet_wrap(vars(cs)) +
-    scale_fill_gradientn(
-      colours = load_palette("temp_ipcc"),
-      na.value = NA,
-      limits = c(-9, 9),
-      breaks = seq(-9, 9, by = 1)
-    ) +
-    scale_x_continuous(
-      name = latex2exp::TeX("$UHI_{AVG}$(°C)"),
-      limits = c(-5, 5),
-      breaks = seq(-5, 5, 1)
-      #latex2exp::TeX("Median duration $\\phantom{x}T2M_{noct}\\geq q_{0.9}\\phantom{x}$(h)"),
-    ) +
-    scale_y_discrete(
-      "Population (log scale)",
-      breaks = c(0, 1, 2, 3, 4, 5),
-      labels = c("0-1", "10", "10e1", "10e2", "10e3", "10e4")
-    ) +
-    ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      axis.title = ggplot2::element_text(size = 20),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 20),
-      plot.title = ggplot2::element_text(size = 20),
-      strip.text.x = element_text(size = 20),
-      legend.title = ggplot2::element_text(size = 20, hjust = .5),
-      legend.position = "none",
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
-    )
+  facet_wrap(vars(cs)) +
+  scale_fill_gradientn(
+    colours = load_palette("temp_ipcc"),
+    na.value = NA,
+    limits = c(-9, 9),
+    breaks = seq(-9, 9, by = 1)
+  ) +
+  scale_x_continuous(
+    name = latex2exp::TeX("$UHI_{AVG}$(°C)"),
+    limits = c(-5, 5),
+    breaks = seq(-5, 5, 1)
+  ) +
+  scale_y_discrete(
+    "Population (log scale)",
+    breaks = c(0, 1, 2, 3, 4, 5),
+    labels = c("0-1", "10", "10e1", "10e2", "10e3", "10e4")
+  ) +
+  ggplot2::theme(
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 20),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 20),
+    plot.title = ggplot2::element_text(size = 20),
+    strip.text.x = element_text(size = 20),
+    legend.title = ggplot2::element_text(size = 20, hjust = .5),
+    legend.position = "none",
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 p_pop_ridges
 ggsave(
   plot = p_pop_ridges,
@@ -1591,7 +1715,7 @@ ggsave(
   dpi = 300
 )
 
-# consecutive days with TX > threshold and TN > threshold 
+# consecutive days with TX > threshold and TN > threshold
 # (definition of heatwave)
 count_heatwave <- function(timeserie) {
   pixel <- rle(as.vector(timeserie)) |>
@@ -1612,8 +1736,8 @@ avg_length_heatwave <- function(timeserie) {
 }
 
 cs <- c("nps", "phoe", "tri")
-thresh_day <- c(35.2, 45.1, 36.1) # q95 tx July 1991 - 2020 
-thresh_night <- c(24.6, 32.8, 23.8)  # q95 tn July 1991 - 2020 
+thresh_day <- c(35.2, 45.1, 36.1) # q95 tx July 1991 - 2020
+thresh_night <- c(24.6, 32.8, 23.8)  # q95 tn July 1991 - 2020
 for (i in seq_along(cs)) {
   input <- get(paste0("input_", cs[[i]]))
   df_day <- input$pred
@@ -1621,7 +1745,7 @@ for (i in seq_along(cs)) {
   df_day <- df_day |>
     dplyr::group_by(lat, lon, date) |>
     dplyr::summarise(
-      tx = max(pred_mean, na.rm = TRUE) 
+      tx = max(pred_mean, na.rm = TRUE)
     )
   df_night <- input$pred
   df_night$date <- ifelse(
@@ -1635,7 +1759,8 @@ for (i in seq_along(cs)) {
       tn = min(pred_mean, na.rm = TRUE)
     )
   df_wide <- merge(df_day, df_night, by = c("lon", "lat", "date"))
-  df_wide$hot <- (df_wide$tn >= thresh_night[[i]]) & (df_wide$tx >= thresh_day[[i]])
+  df_wide$hot <- (df_wide$tn >= thresh_night[[i]]) &
+    (df_wide$tx >= thresh_day[[i]])
   df_wide <- df_wide[, c("lat", "lon", "date", "hot")] |>
     tidyr::pivot_wider(
       names_from = date,
@@ -1752,7 +1877,7 @@ map_heatwave_number <- function(htw_rast, plot_shp) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-    return(p)
+  return(p)
 }
 
 map_heatwave_len <- function(htw_rast, plot_shp) {
@@ -1776,10 +1901,12 @@ map_heatwave_len <- function(htw_rast, plot_shp) {
       limits = c(0, 20),
       na.value = NA
     ) +
-    guides(fill = guide_colourbar(
-      barwidth = 30,
-      barheight = 1.5,
-      keywidth = 30)
+    guides(
+      fill = guide_colourbar(
+        barwidth = 30,
+        barheight = 1.5,
+        keywidth = 30
+      )
     ) +
     ggspatial::annotation_scale(
       location = "tl", pad_x = ggplot2::unit(1, "cm"),
@@ -1804,7 +1931,7 @@ map_heatwave_len <- function(htw_rast, plot_shp) {
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-    return(p)
+  return(p)
 }
 
 p_htw_nps_night <- map_heatwave_number(htw_night_nps, input_nps$plot_shp)
@@ -1847,7 +1974,10 @@ ggsave(
 p_htw_phoe_night <- map_heatwave_number(htw_night_phoe, input_phoe$plot_shp)
 p_htw_phoe_day <- map_heatwave_number(htw_day_phoe, input_phoe$plot_shp)
 p_htw_phoe <- map_heatwave_number(htw_phoe, input_phoe$plot_shp)
-p_htw_len_phoe_night <- map_heatwave_len(htw_night_len_phoe, input_phoe$plot_shp)
+p_htw_len_phoe_night <- map_heatwave_len(
+  htw_night_len_phoe,
+  input_phoe$plot_shp
+)
 p_htw_len_phoe_day <- map_heatwave_len(htw_day_len_phoe, input_phoe$plot_shp)
 p_htw_len_phoe <- map_heatwave_len(htw_len_phoe, input_phoe$plot_shp)
 

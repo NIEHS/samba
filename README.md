@@ -1,3 +1,9 @@
+[![R-CMD-check](https://github.com/NIEHS/samba/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/NIEHS/samba/actions/workflows/check-standard.yaml)
+[![cov](https://NIEHS.github.io/samba/badges/coverage.svg)](https://github.com/NIEHS/samba/actions)
+[![lint](https://github.com/NIEHS/samba/actions/workflows/lint.yaml/badge.svg)](https://github.com/NIEHS/samba/actions/workflows/lint.yaml)
+[![DOI](https://zenodo.org/badge/844662389.svg)](https://doi.org/10.5281/zenodo.15595977)
+
+
 # samba: Spatiotemporal Air-temperature Model with Bayesian Approach
 
 
@@ -22,7 +28,7 @@ Key points:
 
 ### Step 2: download all necessary data
 
-- Personal weather stations data comes from WeatherUnderground, and is processed through [brassens library](https://github.com/NIEHS/brassens)
+- Personal weather stations data comes from WeatherUnderground, and is processed through [samba library](https://github.com/NIEHS/samba)
 - Spatial covariates include elevation, forest canopy height and imperviousness
 - Meteorological covariates all come from ERA5 reanalysis at single level
 
