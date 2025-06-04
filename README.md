@@ -1,5 +1,3 @@
-[![R-CMD-check](https://github.com/NIEHS/samba/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/NIEHS/samba/actions/workflows/check-standard.yaml)
-[![cov](https://NIEHS.github.io/samba/badges/coverage.svg)](https://github.com/NIEHS/samba/actions)
 [![lint](https://github.com/NIEHS/samba/actions/workflows/lint.yaml/badge.svg)](https://github.com/NIEHS/samba/actions/workflows/lint.yaml)
 [![DOI](https://zenodo.org/badge/844662389.svg)](https://doi.org/10.5281/zenodo.15595977)
 
