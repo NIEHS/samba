@@ -17,7 +17,9 @@ find_cells <- function(polygon) {
     terra::rast(res = 1)
   terra::values(contig_us_grid) <- 1:terra::ncell(contig_us_grid)
   names(contig_us_grid) <- "id"
-  us_states <- tigris::states()
+  us_states <- terra::vect(
+    "input/cb_2018_us_state_5m/cb_2018_us_state_5m.shp"
+  )
   no_contig <- c("VI", "MP", "AK", "PR", "AS", "GU", "HI")
   us_contig <- us_states[which(!(us_states$STUSPS %in% no_contig)), "NAME"] |>
     terra::vect() |>
