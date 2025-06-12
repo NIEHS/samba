@@ -22,7 +22,6 @@ find_cells <- function(polygon) {
   )
   no_contig <- c("VI", "MP", "AK", "PR", "AS", "GU", "HI")
   us_contig <- us_states[which(!(us_states$STUSPS %in% no_contig)), "NAME"] |>
-    terra::vect() |>
     terra::project("epsg:4326")
   contig_us_grid <- terra::crop(
     contig_us_grid,
