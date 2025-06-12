@@ -32,11 +32,8 @@ prepare_bhm_materials <- function(
   message("  spatial covariates processed!")
   locs <- terra::unique(input$cws_raw[, c("site_id")])
   area_rect_p <- terra::project(bhm_materials$area_rect, locs)
-  us_borders <- rnaturalearth::ne_countries(
-    type = "countries",
-    country = "United States of America",
-    scale = "small",
-    returnclass = "sv"
+  us_borders <- terra::vect(
+    "input/cb_2018_us_nation_5m/cb_2018_us_nation_5m.shp"
   )
   locs <- terra::intersect(locs, area_rect_p)
   locs <- terra::crop(locs, us_borders)
