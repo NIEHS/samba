@@ -4,6 +4,9 @@
 
 # samba: Spatiotemporal Air-temperature Model with Bayesian Approach
 
+## Maintainer
+
+Messier, Kyle (NIH/NIEHS) <kyle.messier@nih.gov>
 
 ![Newyork - Philadelphia, July 2024 Urban heat island](https://github.com/user-attachments/assets/cd0e4092-af08-4687-a65f-93f5ddd6733c)
 
